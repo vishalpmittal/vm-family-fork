@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Home — Family Fork{% endblock %}
+
+{% block content %}
+
+{% if today %}
+<!-- ── HERO ── -->
+<div class="home-hero">
+  <div>
+    <div class="hero-eyebrow">Today's Recipe · {{ today.generated_at.strftime('%A, %b %d') }}</div>
+    <h1 class="hero-title">{{ today.title }}</h1>
+    <p class="hero-sub">{{ today.description }}</p>
+    <div class="hero-meta">
+      {% set cuisine_emoji = {'indian':'🍛','italian':'🍝','mexican':'🌮','mediterranean':'🫒'} %}
+      <span class="hero-tag">{{ cuisine_emoji.get(today.cuisine_tag,'🍽') }} {{ today.cuisine_tag|title }}</span>
+      {% for tag in today.dietary_tags %}
+        <span class="hero-tag">{{ tag|title }}</span>
+      {% endfor %}
+      {% for tag in today.nutrition_tags[:2] %}
+        <span class="hero-tag">{{ tag|title }}</span>
+      {% endfor %}
+      <span class="hero-tag">🌶 Spice {{ today.spice_level }}/5</span>
+      <span class="hero-tag">👥 {{ today.servings }} people</span>
+    </div>
+    <div class="hero-actions">
+      <a href="{{ url_for('recipe_detail', recipe_id=today.id) }}" class="btn btn-white">View Full Recipe</a>
+      <button type="button" class="btn btn-primary generate-recipe-btn">Generate Another</button>
+    </div>
+  </div>
+
+  <div class="hero-card">
+    <div class="hero-card-img" data-emoji="{{ cuisine_emoji.get(today.cuisine_tag,'🍽') }}">
+      {% if today.image_url %}
+      <img src="{{ today.image_url }}" alt="{{ today.title }}" class="card-photo">
+      {% else %}{{ cuisine_emoji.get(today.cuisine_tag,'🍽') }}{% endif %}
+    </div>
+    <div class="hero-card-body">
+      <div class="hero-card-label">Auto-generated · {{ today.generated_at.strftime('%I:%M %p') }}</div>
+      <div class="hero-card-title">{{ today.title }}</div>
+      <div class="hero-card-tags">
+        <span class="hero-card-tag">⏱ {{ today.prep_time_min + today.cook_time_min }} min</span>
+        {% for tag in today.nutrition_tags[:2] %}
+          <span class="hero-card-tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <div class="hero-card-footer">
+        <span>👥 {{ today.servings }} servings</span>
+        {% if profile and profile.age_youngest %}
+          <span>👶 Age {{ profile.age_youngest }}+</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- ── EMPTY STATE ── -->
+<div class="home-empty">
+  <h2>Welcome to Family Fork!</h2>
+  <p>Personalized recipes made easy. Let's set up your profile and generate your first recipe.</p>
+  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top: 2rem;">
+    <a href="{{ url_for('profile') }}" class="btn btn-primary">👥 Set Up Profile</a>
+    <button type="button" class="btn btn-ghost generate-recipe-btn">⚡ Generate Recipe</button>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── THIS WEEK ── -->
+{% if week %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 3rem 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark);">This Week's Recipes</h2>
+    <a href="{{ url_for('cookbook') }}" style="color: var(--primary-terracotta); font-weight: 600; text-decoration: none;">View all →</a>
+  </div>
+  <div class="recipe-grid">
+    {% set cuisine_emoji = {'indian':'🍛','italian':'🍝','mexican':'🌮','mediterranean':'🫒'} %}
+    {% for recipe in week %}
+    <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="recipe-card recipe-card-link">
+      <div class="recipe-card-img" data-emoji="{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}">
+        {% if recipe.image_url %}
+        <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="card-photo">
+        {% else %}{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}{% endif %}
+      </div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-title">{{ recipe.title }}</div>
+        <div class="recipe-card-meta">
+          <div class="recipe-card-meta-item">{{ recipe.cuisine_tag|title }}</div>
+          <div class="recipe-card-meta-item">⏱ {{ recipe.prep_time_min + recipe.cook_time_min }} min</div>
+        </div>
+        <div class="recipe-card-tags-small">
+          {% if recipe.dietary_tags %}<span class="recipe-card-tag-small">{{ recipe.dietary_tags[0] }}</span>{% endif %}
+          {% if recipe.nutrition_tags %}<span class="recipe-card-tag-small">{{ recipe.nutrition_tags[0] }}</span>{% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── ON DEMAND SECTION ── -->
+<div style="background-color: var(--bg-white); border-top: 1px solid var(--border-light); margin-top: 2rem; padding: 3rem 2rem; text-align: center;">
+  <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Need a recipe right now?</h3>
+  <p style="color: var(--text-secondary); margin-bottom: 2rem;">Generate a new recipe on demand — outside the 5 PM daily schedule.</p>
+  <button type="button" class="btn btn-primary generate-recipe-btn">⚡ Generate Now</button>
+</div>
+
+{% endblock %}

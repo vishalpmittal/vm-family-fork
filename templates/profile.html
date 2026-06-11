@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}My Profile — Family Fork{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 2rem;">
+  <div style="margin-bottom: 3rem;">
+    <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.5rem;">👥 Family Profile</h1>
+    <p style="color: var(--text-secondary); font-size: 1.05rem;">Personalize your recipe preferences</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('profile') }}" id="profile-form">
+
+    <!-- HOUSEHOLD SECTION -->
+    <div style="background: var(--bg-white); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.6rem;">👥</span>
+        Household Details
+      </h2>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div>
+          <label style="display: block;">
+            <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">How many people eat together?</div>
+            <select name="num_people" id="num_people" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.2s ease; cursor: pointer;">
+              <option value="">Select household size...</option>
+              <option value="1" {% if profile and profile.num_people == 1 %}selected{% endif %}>1 person</option>
+              <option value="2" {% if profile and profile.num_people == 2 %}selected{% endif %}>2 people</option>
+              <option value="3" {% if profile and profile.num_people == 3 %}selected{% endif %}>3 people</option>
+              <option value="4" {% if profile and profile.num_people == 4 %}selected{% endif %}>4 people</option>
+              <option value="5" {% if profile and profile.num_people == 5 %}selected{% endif %}>5 people</option>
+              <option value="6" {% if profile and profile.num_people == 6 %}selected{% endif %}>6 people</option>
+              <option value="7" {% if profile and profile.num_people == 7 %}selected{% endif %}>7 people</option>
+              <option value="8" {% if profile and profile.num_people == 8 %}selected{% endif %}>8 people</option>
+              <option value="9" {% if profile and profile.num_people == 9 %}selected{% endif %}>9 people</option>
+              <option value="10" {% if profile and profile.num_people == 10 %}selected{% endif %}>10+ people</option>
+            </select>
+          </label>
+        </div>
+        <div></div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <label style="display: block;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Youngest eater's age</div>
+          <input type="number" name="age_youngest" min="2" max="99" value="{{ profile.age_youngest if profile else 5 }}" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.2s ease;" />
+        </label>
+        <label style="display: block;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Oldest eater's age</div>
+          <input type="number" name="age_oldest" min="2" max="99" value="{{ profile.age_oldest if profile else 40 }}" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.2s ease;" />
+        </label>
+      </div>
+    </div>
+
+    <!-- DIETARY & PREFERENCES SECTION -->
+    <div style="background: var(--bg-white); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.6rem;">🌶</span>
+        Food Preferences
+      </h2>
+      
+      <div style="margin-bottom: 2rem;">
+        <label style="display: block; margin-bottom: 0.75rem;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">Dietary Restrictions</div>
+        </label>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+          {% set current_diet = profile.dietary_restrictions if profile else [] %}
+          {% for val, label in [('vegetarian','🥬 Vegetarian'),('vegan','🌱 Vegan'),('chicken','🍗 Chicken OK'),('seafood','🐠 Seafood OK'),('any-meat','🥩 Any Meat OK')] %}
+          <label style="display: flex; align-items: center; cursor: pointer;">
+            <input type="checkbox" name="dietary_restrictions" value="{{ val }}" {% if val in current_diet %}checked{% endif %} style="margin-right: 0.75rem; width: 18px; height: 18px; accent-color: var(--primary-terracotta); cursor: pointer;" />
+            <span style="padding: 0.6rem 1rem; background-color: var(--bg-light); border-radius: 20px; font-weight: 500; color: var(--text-dark); transition: all 0.2s ease;">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <label style="display: block; margin-bottom: 1rem;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Spice Level</div>
+          <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 0.75rem;">
+            <input type="range" name="spice_level" min="1" max="5" value="{{ profile.spice_level if profile else 3 }}" oninput="updateSpiceLabel(this.value)" style="flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(to right, #C85A54, var(--primary-terracotta), #D4A574); outline: none; -webkit-appearance: none; appearance: none;" />
+            <div style="text-align: center; min-width: 80px;">
+              <div style="font-size: 1.4rem; font-weight: 700; color: var(--primary-terracotta);" id="spice-val">{{ profile.spice_level if profile else 3 }}</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary);" id="spice-desc">Medium</div>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 0.75rem;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">Preferred Cuisines</div>
+        </label>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+          {% set current_cuisines = profile.cuisines if profile else [] %}
+          {% for val, label in [('indian','🍛 Indian'),('italian','🍝 Italian'),('mexican','🌮 Mexican'),('mediterranean','🫒 Mediterranean')] %}
+          <label style="display: flex; align-items: center; cursor: pointer;">
+            <input type="checkbox" name="cuisines" value="{{ val }}" {% if val in current_cuisines %}checked{% endif %} style="margin-right: 0.75rem; width: 18px; height: 18px; accent-color: var(--primary-terracotta); cursor: pointer;" />
+            <span style="padding: 0.6rem 1rem; background-color: var(--bg-light); border-radius: 20px; font-weight: 500; color: var(--text-dark); transition: all 0.2s ease;">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- NUTRITION GOALS SECTION -->
+    <div style="background: var(--bg-white); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.6rem;">💊</span>
+        Nutrition Focus <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-secondary);">(optional)</span>
+      </h2>
+      
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        {% set current_nutrition = profile.nutrition_goals if profile else [] %}
+        {% for val, label in [('protein-rich','💪 Protein-rich'),('iron-rich','🩸 Iron-rich'),('vitamin-rich','🌿 Vitamin-rich'),('diabetic-friendly','🩺 Diabetic-friendly'),('balanced','⚖️ Balanced')] %}
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="checkbox" name="nutrition_goals" value="{{ val }}" {% if val in current_nutrition %}checked{% endif %} style="margin-right: 0.75rem; width: 18px; height: 18px; accent-color: var(--primary-terracotta); cursor: pointer;" />
+          <span style="padding: 0.6rem 1rem; background-color: var(--bg-light); border-radius: 20px; font-weight: 500; color: var(--text-dark); transition: all 0.2s ease;">{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- EMAIL NOTIFICATIONS SECTION -->
+    <div style="background: var(--bg-white); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.6rem;">📧</span>
+        Daily Recipe Email <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-secondary);">(optional)</span>
+      </h2>
+      
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+        <label style="display: block;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Email address</div>
+          <input type="email" name="email" value="{{ profile.email if profile else '' }}" placeholder="you@example.com" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.2s ease;" />
+        </label>
+        <label style="display: block;">
+          <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Timezone</div>
+          <input type="text" name="timezone" value="{{ profile.timezone if profile else 'America/New_York' }}" placeholder="America/New_York" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-light); border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: all 0.2s ease;" />
+        </label>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.75rem;">We'll send new recipes to this email daily at 5 PM in your timezone.</p>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+      <a href="{{ url_for('home') }}" class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">✓ Save Profile</button>
+    </div>
+
+  </form>
+</div>
+
+<style>
+  select:focus,
+  input:focus {
+    outline: none;
+    border-color: var(--primary-terracotta) !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 70, 0.1);
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary-terracotta);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(217, 119, 70, 0.3);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary-terracotta);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(217, 119, 70, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    div[style*="grid-template-columns: 2fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const spiceLabels = { '1': 'Very Mild', '2': 'Mild', '3': 'Medium', '4': 'Hot', '5': 'Very Hot' };
+
+function updateSpiceLabel(value) {
+  document.getElementById('spice-val').textContent = value;
+  document.getElementById('spice-desc').textContent = spiceLabels[value];
+}
+
+// Initialize spice label on load
+updateSpiceLabel(document.querySelector('input[name="spice_level"]').value);
+</script>
+{% endblock %}

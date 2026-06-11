@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}What's in the Fridge — Family Fork{% endblock %}
+
+{% block content %}
+<div class="fridge-container">
+
+  <div class="fridge-header" style="display: flex; gap: 2rem; align-items: flex-start; margin-bottom: 3rem; background: linear-gradient(135deg, rgba(58, 140, 30, 0.1), rgba(212, 165, 116, 0.1)); padding: 2rem; border-radius: 8px;">
+    <div style="font-size: 3rem;">🧊</div>
+    <div>
+      <h1 class="fridge-title" style="font-size: 2rem; font-weight: 800;">What's in the Fridge?</h1>
+      <p class="fridge-sub" style="color: var(--text-secondary); line-height: 1.6;">Add the fresh vegetables, proteins, and sauces you have on hand — we'll generate a recipe using only what you've got.</p>
+    </div>
+  </div>
+
+  <!-- Step 1: Ingredients -->
+  <div style="margin-bottom: 2.5rem; background: var(--bg-white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--primary-sage); color: white; border-radius: 50%; font-weight: 700;">1</div>
+      <h3 style="font-size: 1.3rem; font-weight: 700;">Fresh ingredients in your fridge</h3>
+    </div>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Vegetables, dairy, proteins, condiments</p>
+
+    <div class="ingredient-input">
+      <input type="text" id="ingredient-input" placeholder="e.g. spinach, paneer, cherry tomatoes…" autocomplete="off" />
+      <button class="btn btn-primary" id="add-btn">+ Add</button>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Press Enter or click Add</p>
+
+    <div id="fridge-chips" class="fridge-items"></div>
+
+    <div style="margin-top: 2rem;">
+      <div style="font-weight: 700; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 0.75rem;">Vegetables</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        {% for item in ['Spinach','Kale','Tomatoes','Bell Pepper','Zucchini','Broccoli','Mushrooms','Carrots','Potatoes'] %}
+        <button class="btn btn-ghost btn-sm" onclick="addIngredient('{{ item }}')">{{ item }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+      <div style="font-weight: 700; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 0.75rem;">Proteins & Dairy</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        {% for item in ['Paneer','Tofu','Eggs','Feta','Yogurt','Chickpeas','Beans','Lentils'] %}
+        <button class="btn btn-ghost btn-sm" onclick="addIngredient('{{ item }}')">{{ item }}</button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Sauce / cooking style -->
+  <div style="margin-bottom: 2.5rem; background: var(--bg-white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--primary-terracotta); color: white; border-radius: 50%; font-weight: 700;">2</div>
+      <h3 style="font-size: 1.3rem; font-weight: 700;">Sauce or cooking base <span style="font-weight: 400; color: var(--text-secondary);">(optional)</span></h3>
+    </div>
+
+    <div class="fridge-option-chips" id="sauce-chips" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+      {% for val, label, emoji in [
+        ('tomato',    'Tomato-based',   '🍅'),
+        ('coconut',   'Coconut Milk',   '🥥'),
+        ('cream',     'Cream/Butter',   '🥛'),
+        ('olive-oil', 'Olive Oil',      '🫒'),
+        ('broth',     'Broth/Stock',    '🍲'),
+      ] %}
+      <button class="btn btn-ghost" data-value="{{ val }}" onclick="selectSingle(this,'sauce-chips')" type="button">{{ emoji }} {{ label }}</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Step 3: Cuisine -->
+  <div style="margin-bottom: 2.5rem; background: var(--bg-white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--primary-gold); color: white; border-radius: 50%; font-weight: 700;">3</div>
+      <h3 style="font-size: 1.3rem; font-weight: 700;">Cuisine style <span style="font-weight: 400; color: var(--text-secondary);">(optional)</span></h3>
+    </div>
+
+    <div class="fridge-option-chips" id="cuisine-chips" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+      {% for val, label in [
+        ('indian',        '🍛 Indian'),
+        ('italian',       '🍝 Italian'),
+        ('mexican',       '🌮 Mexican'),
+        ('mediterranean', '🫒 Mediterranean'),
+      ] %}
+      <button class="btn btn-ghost" data-value="{{ val }}" onclick="selectSingle(this,'cuisine-chips')" type="button">{{ label }}</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Generate -->
+  <div style="text-align: center; padding: 2rem; background: var(--bg-light); border-radius: 8px; margin-bottom: 2rem;">
+    <div id="fridge-count-msg" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1rem;">Add at least 1 ingredient to get started.</div>
+    <button class="btn btn-primary" id="fridge-generate-btn" disabled style="padding: 1rem 2rem; font-size: 1rem;">
+      ⚡ Generate Recipe from Fridge
+    </button>
+  </div>
+
+  <!-- Result -->
+  <div id="fridge-result" style="margin-top: 2rem;"></div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let ingredients   = [];
+  let seenTitles    = [];   // track generated recipes to avoid repeats
+
+  const input    = document.getElementById('ingredient-input');
+  const addBtn   = document.getElementById('add-btn');
+  const chipsEl  = document.getElementById('fridge-chips');
+  const genBtn   = document.getElementById('fridge-generate-btn');
+  const countMsg = document.getElementById('fridge-count-msg');
+  const resultEl = document.getElementById('fridge-result');
+
+  function addIngredient(val) {
+    val = val.trim();
+    if (!val || ingredients.map(i => i.toLowerCase()).includes(val.toLowerCase())) return;
+    ingredients.push(val);
+    renderChips();
+    input.value = '';
+    input.focus();
+  }
+
+  function removeIngredient(idx) {
+    ingredients.splice(idx, 1);
+    renderChips();
+  }
+
+  function renderChips() {
+    chipsEl.innerHTML = ingredients.map((ing, i) =>
+      `<span class="fridge-item">${ing}<button onclick="removeIngredient(${i})" type="button" style="color: var(--primary-sage); background: transparent; border: none; cursor: pointer; font-size: 1.2rem; padding: 0 0 0 0.5rem;">✕</button></span>`
+    ).join('');
+    const count = ingredients.length;
+    genBtn.disabled = count === 0;
+    countMsg.textContent = count === 0
+      ? 'Add at least 1 ingredient to get started.'
+      : `${count} ingredient${count > 1 ? 's' : ''} added — ready to generate!`;
+    countMsg.style.color = count > 0 ? 'var(--primary-sage)' : 'var(--text-secondary)';
+    seenTitles = [];  // reset seen list when ingredient selection changes
+    resultEl.innerHTML = '';
+  }
+
+  function selectSingle(btn, groupId) {
+    document.querySelectorAll(`#${groupId} .btn`).forEach(b => {
+      if (b !== btn) b.classList.remove('btn-primary');
+      if (b !== btn) b.classList.add('btn-ghost');
+    });
+    btn.classList.toggle('btn-ghost');
+    btn.classList.toggle('btn-primary');
+  }
+
+  function getSelected(groupId) {
+    const sel = document.querySelector(`#${groupId} .btn-primary`);
+    return sel ? sel.dataset.value : null;
+  }
+
+  addBtn.addEventListener('click', () => addIngredient(input.value));
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') addIngredient(input.value); });
+
+  genBtn.addEventListener('click', async () => {
+    genBtn.disabled = true;
+    genBtn.innerHTML = '<span class="spinner"></span> Finding the best recipe…';
+    resultEl.className = 'fridge-result hidden';
+
+    const cuisine = getSelected('cuisine-chips');
+    const sauce   = getSelected('sauce-chips');
+
+    const resetBtn = () => {
+      genBtn.disabled = false;
+      genBtn.innerHTML = '⚡ Generate Recipe from Fridge';
+    };
+
+    const showRecipe = (r) => {
+      seenTitles.push(r.title);
+      const matchedBadges = (r.fridge_match || [])
+        .map(m => `<span class="recipe-card-tag-small">✓ ${m}</span>`).join('');
+      resultEl.innerHTML = `
+        <div class="recipe-card" style="max-width: 600px; margin: 0 auto;">
+          <div class="recipe-card-img">
+            ${r.image_url ? `<img src="${r.image_url}" alt="${r.title}" class="card-photo">` : '🍽'}
+          </div>
+          <div class="recipe-card-body" style="flex: 1;">
+            <div class="hero-card-label">Recipe generated from your fridge</div>
+            <h2 class="recipe-card-title" style="font-size: 1.5rem;">${r.title}</h2>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin: 1rem 0;">${r.description}</p>
+            ${matchedBadges ? `<div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">${matchedBadges}</div>` : ''}
+            <div class="recipe-card-meta" style="margin: 1rem 0;">
+              <div class="recipe-card-meta-item">⏱ ${r.prep_time_min + r.cook_time_min} min</div>
+              <div class="recipe-card-meta-item">👥 ${r.servings} servings</div>
+              <div class="recipe-card-meta-item">🌶 Spice ${r.spice_level}/5</div>
+            </div>
+            <div class="recipe-card-actions" style="display: flex; gap: 0.75rem;">
+              <a href="/recipe/${r.id}" class="btn btn-primary">View Full Recipe</a>
+              <button class="btn btn-ghost" id="try-again-btn" type="button">Try Different</button>
+            </div>
+          </div>
+        </div>`;
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document.getElementById('try-again-btn')?.addEventListener('click', () => genBtn.click());
+      resetBtn();
+    };
+
+    try {
+      const res = await fetch('/api/fridge-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients, cuisine, sauce, exclude_titles: seenTitles })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Poll until the background job finishes
+      let attempts = 0;
+      const timer = setInterval(async () => {
+        if (++attempts > 90) {
+          clearInterval(timer);
+          resultEl.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--red); background: rgba(200, 90, 84, 0.1); border-radius: 8px;">❌ Generation timed out — please try again.</div>`;
+          resetBtn();
+          return;
+        }
+        try {
+          const sr = await fetch(`/api/job/${data.job_id}`);
+          const job = await sr.json();
+          if (job.status === 'done') {
+            clearInterval(timer);
+            showRecipe(job.recipe);
+          } else if (job.status === 'error') {
+            clearInterval(timer);
+            resultEl.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--red); background: rgba(200, 90, 84, 0.1); border-radius: 8px;">❌ ${job.error || 'Something went wrong.'}</div>`;
+            resetBtn();
+          }
+        } catch (_) { /* network blip — keep polling */ }
+      }, 2000);
+
+    } catch (e) {
+      resultEl.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--red); background: rgba(200, 90, 84, 0.1); border-radius: 8px;">❌ ${e.message || 'Something went wrong. Please try again.'}</div>`;
+      resetBtn();
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }} — Family Fork{% endblock %}
+
+{% block content %}
+<div class="recipe-detail">
+
+  <a href="{{ url_for('cookbook') }}" class="recipe-back">← Back to Cookbook</a>
+
+  {% set cuisine_emoji = {'indian':'🍛','italian':'🍝','mexican':'🌮','mediterranean':'🫒'} %}
+  <!-- Hero image -->
+  <div class="recipe-hero-img" data-emoji="{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}">
+    {% if recipe.image_url %}
+    <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="recipe-hero-photo card-photo">
+    <span class="recipe-hero-emoji">{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}</span>
+    {% else %}
+    {{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}
+    {% endif %}
+  </div>
+
+  <!-- Title + Tags -->
+  <h1 class="recipe-detail-title">{{ recipe.title }}</h1>
+  <div class="recipe-detail-tags">
+    <span class="tag tag-cuisine">{{ cuisine_emoji.get(recipe.cuisine_tag, '🍽') }} {{ recipe.cuisine_tag|title }}</span>
+    {% for tag in recipe.dietary_tags %}
+      <span class="tag tag-diet">{{ tag|title }}</span>
+    {% endfor %}
+    {% for tag in recipe.nutrition_tags %}
+      <span class="tag tag-nutrition">{{ tag }}</span>
+    {% endfor %}
+    <span class="tag tag-spice">🌶 Spice {{ recipe.spice_level }}/5</span>
+  </div>
+
+  <!-- Stats row -->
+  <div class="recipe-stats">
+    <div class="stat-card">
+      <div class="stat-label">Prep</div>
+      <div class="stat-value">{{ recipe.prep_time_min }} <span class="stat-unit">min</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cook</div>
+      <div class="stat-value">{{ recipe.cook_time_min }} <span class="stat-unit">min</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Servings</div>
+      <div class="stat-value" id="serving-count">{{ recipe.servings }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Added</div>
+      <div class="stat-value" style="font-size:13px">{{ recipe.generated_at.strftime('%b %d') }}</div>
+    </div>
+  </div>
+  <input type="hidden" id="base-servings" value="{{ recipe.servings }}">
+
+  <!-- Serving adjuster -->
+  <div class="serving-adjuster">
+    <span style="font-size:13px; font-weight:600;">Adjust servings:</span>
+    <button class="adj-btn" onclick="adjustServings(-1)">−</button>
+    <div class="adj-count" id="serving-count">{{ recipe.servings }}</div>
+    <button class="adj-btn" onclick="adjustServings(1)">+</button>
+    <span style="font-size:12px; color:var(--muted);">Ingredients scale automatically</span>
+  </div>
+
+  <!-- Description -->
+  {% if recipe.description %}
+  <p style="font-size:14px; color:var(--text-secondary); margin-bottom:24px; line-height:1.7;">{{ recipe.description }}</p>
+  {% endif %}
+
+  <!-- Allergen note -->
+  {% if recipe.allergen_notes %}
+  <div class="allergen-box">
+    <strong>⚠ Age Note</strong>
+    {{ recipe.allergen_notes }}
+  </div>
+  {% endif %}
+
+  <!-- Ingredients -->
+  <div class="recipe-section-title">Ingredients</div>
+  <ul class="ingredient-list">
+    {% for ing in recipe.ingredients %}
+    <li class="ingredient-item">
+      <span>{{ ing.name }}</span>
+      <span class="ingredient-qty"
+            data-base="{{ ing.quantity }}"
+            data-unit="{{ ing.unit }}">
+        {{ ing.quantity }} {{ ing.unit }}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <!-- Nutrition Card -->
+  {% if recipe.nutrition_macros %}
+  <div class="nutrition-card">
+    <h3 style="margin-bottom: 16px; font-size: 16px;">Nutrition per serving</h3>
+    <div class="nutrition-grid">
+      <div class="nutrition-item">
+        <div class="nutrition-value">{{ recipe.nutrition_macros.get('calories', '-') }}</div>
+        <div class="nutrition-label">Calories</div>
+      </div>
+      <div class="nutrition-item">
+        <div class="nutrition-value">{{ recipe.nutrition_macros.get('protein', '-') }}g</div>
+        <div class="nutrition-label">Protein</div>
+      </div>
+      <div class="nutrition-item">
+        <div class="nutrition-value">{{ recipe.nutrition_macros.get('carbs', '-') }}g</div>
+        <div class="nutrition-label">Carbs</div>
+      </div>
+      <div class="nutrition-item">
+        <div class="nutrition-value">{{ recipe.nutrition_macros.get('fat', '-') }}g</div>
+        <div class="nutrition-label">Fat</div>
+      </div>
+      <div class="nutrition-item">
+        <div class="nutrition-value">{{ recipe.nutrition_macros.get('fiber', '-') }}g</div>
+        <div class="nutrition-label">Fiber</div>
+      </div>
+      <div class="nutrition-item">
+        <div class="nutrition-value">{{ recipe.nutrition_macros.get('sodium', '-') }}mg</div>
+        <div class="nutrition-label">Sodium</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Instructions -->
+  <div class="recipe-section-title">Instructions</div>
+  <ol class="steps-list">
+    {% for step in recipe.instructions %}
+    <li class="step-item" data-step="{{ loop.index }}">
+      <div class="step-header">
+        <input type="checkbox" class="step-checkbox" onchange="toggleStepProgress({{ loop.index }})">
+        <div class="step-num">{{ loop.index }}</div>
+        <div class="step-text">{{ step }}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+
+  <!-- Actions -->
+  <div class="recipe-actions">
+    <button class="btn btn-primary" onclick="copyRecipe()">📋 Copy Recipe</button>
+    <a href="{{ url_for('cookbook') }}" class="btn btn-ghost">← Back to Cookbook</a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyRecipe() {
+  const title = "{{ recipe.title }}";
+  const ingredients = {{ recipe.ingredients | tojson }}.map(i => `${i.quantity} ${i.unit} ${i.name}`).join('\n');
+  const steps = {{ recipe.instructions | tojson }}.map((s,i) => `${i+1}. ${s}`).join('\n');
+  const text = `${title}\n\nIngredients:\n${ingredients}\n\nInstructions:\n${steps}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Recipe', 2000);
+  });
+}
+
+function toggleStepProgress(stepNum) {
+  const recipeId = {{ recipe.id }};
+  const key = `recipe_${recipeId}_steps`;
+  let completed = JSON.parse(localStorage.getItem(key) || '[]');
+  if (completed.includes(stepNum)) {
+    completed = completed.filter(s => s !== stepNum);
+  } else {
+    completed.push(stepNum);
+  }
+  localStorage.setItem(key, JSON.stringify(completed));
+}
+
+function restoreStepProgress() {
+  const recipeId = {{ recipe.id }};
+  const key = `recipe_${recipeId}_steps`;
+  const completed = JSON.parse(localStorage.getItem(key) || '[]');
+  document.querySelectorAll('.step-checkbox').forEach((cb, idx) => {
+    if (completed.includes(idx + 1)) {
+      cb.checked = true;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', restoreStepProgress);
+</script>
+{% endblock %}

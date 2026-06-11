@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Fork — Design Guide</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── Colour tokens ── */
+      --bg:               #fdf6ec;
+      --surface:          #ffffff;
+      --border:           #f0d9b8;
+      --muted:            #c4a882;
+      --text:             #2a1500;
+      --text-secondary:   #7a4e20;
+
+      --green:            #3a8c1e;
+      --green-light:      #eef8e6;
+      --green-muted:      #82c44a;
+
+      --orange:           #e86d10;
+      --orange-light:     #fff3e6;
+      --orange-muted:     #f5a455;
+
+      --red:              #c8301a;
+      --red-light:        #fdeae6;
+      --red-muted:        #e8735a;
+
+      --yellow:           #e8a800;
+      --yellow-light:     #fff8d6;
+      --yellow-muted:     #f5c842;
+
+      /* ── Type scale ── */
+      --text-xs:   11px;
+      --text-sm:   12px;
+      --text-base: 14px;
+      --text-md:   16px;
+      --text-lg:   18px;
+      --text-xl:   22px;
+      --text-2xl:  26px;
+      --text-3xl:  34px;
+
+      /* ── Spacing ── */
+      --space-xs:  4px;
+      --space-sm:  8px;
+      --space-md:  16px;
+      --space-lg:  24px;
+      --space-xl:  32px;
+      --space-2xl: 48px;
+
+      /* ── Radii ── */
+      --radius-sm: 4px;
+      --radius:    8px;
+      --radius-lg: 16px;
+      --radius-xl: 99px;
+
+      /* ── Shadows ── */
+      --shadow-sm: 0 1px 4px rgba(60,20,0,0.09);
+      --shadow-md: 0 4px 18px rgba(60,20,0,0.13);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: var(--text-base);
+      line-height: 1.6;
+    }
+
+    /* ── Guide nav ── */
+    .guide-nav {
+      background: linear-gradient(90deg, #2a1500 0%, #7a2a00 50%, #a83800 100%);
+      border-bottom: 3px solid var(--orange);
+      padding: 0 40px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(60,20,0,0.28);
+    }
+    .guide-logo { font-size: 16px; font-weight: 800; color: var(--yellow-muted); }
+    .guide-logo span { color: #f5ddb8; font-weight: 400; }
+    .guide-badge {
+      background: var(--orange); color: #fff;
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: var(--radius-xl); letter-spacing: 0.5px;
+    }
+
+    /* ── Page shell ── */
+    .guide-wrap { max-width: 960px; margin: 0 auto; padding: 48px 32px 80px; }
+
+    /* ── Section ── */
+    .guide-section { margin-bottom: 56px; }
+    .guide-section-title {
+      font-size: var(--text-xl); font-weight: 800;
+      color: var(--text); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .guide-section-title::after {
+      content: ''; flex: 1; height: 2px;
+      background: linear-gradient(90deg, var(--orange), transparent);
+    }
+    .guide-section-sub {
+      font-size: var(--text-sm); color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    /* ── Colour palette ── */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .swatch-group { }
+    .swatch-group-label {
+      font-size: var(--text-xs); font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .swatch {
+      border-radius: var(--radius); height: 64px;
+      display: flex; align-items: flex-end;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+    .swatch-label {
+      font-size: var(--text-xs); font-weight: 700;
+      background: rgba(0,0,0,0.18); color: #fff;
+      padding: 2px 6px; border-radius: 4px; backdrop-filter: blur(4px);
+    }
+    .swatch-meta { font-size: var(--text-xs); color: var(--text-secondary); }
+
+    /* swatch colours */
+    .s-green        { background: #3a8c1e; }
+    .s-green-light  { background: #eef8e6; }
+    .s-green-muted  { background: #82c44a; }
+    .s-orange       { background: #e86d10; }
+    .s-orange-light { background: #fff3e6; }
+    .s-orange-muted { background: #f5a455; }
+    .s-red          { background: #c8301a; }
+    .s-red-light    { background: #fdeae6; }
+    .s-red-muted    { background: #e8735a; }
+    .s-yellow       { background: #e8a800; }
+    .s-yellow-light { background: #fff8d6; }
+    .s-yellow-muted { background: #f5c842; }
+    .s-bg           { background: #fdf6ec; border: 1px solid var(--border); }
+    .s-surface      { background: #ffffff; border: 1px solid var(--border); }
+    .s-border       { background: #f0d9b8; }
+    .s-muted        { background: #c4a882; }
+    .s-text         { background: #2a1500; }
+    .s-text-sec     { background: #7a4e20; }
+
+    /* ── Token table ── */
+    .token-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+    .token-table th {
+      text-align: left; padding: 8px 12px;
+      background: var(--orange-light); color: var(--orange);
+      font-size: var(--text-xs); font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .token-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .token-table tr:hover td { background: var(--bg); }
+    .token-dot {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+      vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,0.08);
+    }
+    code {
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 1px 6px; border-radius: var(--radius-sm);
+      font-size: var(--text-xs); font-family: 'SF Mono', monospace;
+      color: var(--red);
+    }
+
+    /* ── Typography ── */
+    .type-scale { display: flex; flex-direction: column; gap: 12px; }
+    .type-row {
+      display: flex; align-items: baseline; gap: 20px;
+      padding: 12px 16px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .type-meta { min-width: 180px; font-size: var(--text-xs); color: var(--muted); }
+    .type-meta strong { display: block; color: var(--text-secondary); font-size: var(--text-sm); }
+
+    /* ── Spacing ── */
+    .space-grid { display: flex; flex-direction: column; gap: 10px; }
+    .space-row { display: flex; align-items: center; gap: 16px; }
+    .space-bar-wrap { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; }
+    .space-bar { height: 20px; background: linear-gradient(90deg, var(--orange), var(--yellow)); border-radius: var(--radius-sm); }
+    .space-label { min-width: 80px; font-size: var(--text-xs); color: var(--text-secondary); font-weight: 600; }
+    .space-val { min-width: 40px; font-size: var(--text-xs); color: var(--muted); text-align: right; }
+
+    /* ── Radii ── */
+    .radius-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+    .radius-card {
+      background: var(--surface); border: 2px solid var(--orange-muted);
+      width: 120px; height: 80px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
+    }
+    .radius-label { font-size: var(--text-xs); font-weight: 700; color: var(--text-secondary); }
+
+    /* ── Shadows ── */
+    .shadow-grid { display: flex; gap: 24px; flex-wrap: wrap; }
+    .shadow-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      min-width: 160px; text-align: center;
+    }
+    .shadow-label { font-size: var(--text-xs); font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; }
+    .shadow-val { font-size: var(--text-xs); color: var(--muted); font-family: monospace; }
+    .s-sm  { box-shadow: 0 1px 4px rgba(60,20,0,0.09); }
+    .s-md  { box-shadow: 0 4px 18px rgba(60,20,0,0.13); }
+
+    /* ── Component demos ── */
+    .component-grid { display: flex; flex-direction: column; gap: 28px; }
+    .component-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px;
+    }
+    .component-block-title {
+      font-size: var(--text-xs); font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--orange); margin-bottom: 16px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+
+    /* buttons */
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: var(--radius); font-size: var(--text-sm);
+      font-weight: 600; cursor: pointer; border: none;
+    }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-secondary { background: var(--red); color: #fff; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-yellow { background: var(--yellow); color: var(--text); }
+    .btn-outline { background: none; border: 1.5px solid var(--orange); color: var(--orange); }
+    .btn-ghost { background: var(--orange-light); color: var(--orange); }
+    .btn-sm { padding: 5px 12px; font-size: var(--text-xs); }
+    .btn-lg { padding: 12px 24px; font-size: var(--text-md); }
+
+    /* tags */
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 10px; border-radius: var(--radius-xl);
+      font-size: var(--text-xs); font-weight: 700;
+    }
+    .tag-cuisine  { background: #fff0d6; color: #a85000; }
+    .tag-nutrition{ background: #fff8d6; color: #8a6200; }
+    .tag-diet     { background: #eef8e6; color: #2d6a10; }
+    .tag-spice    { background: #fdeae6; color: #c8301a; }
+
+    /* chips */
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 6px 14px; border-radius: var(--radius-xl); font-size: var(--text-sm);
+      font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text-secondary);
+    }
+    .chip.selected { background: var(--orange-light); color: var(--orange); border-color: var(--orange-muted); }
+
+    /* spice dots */
+    .spice-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .spice { display: inline-flex; gap: 4px; align-items: center; }
+    .spice-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+    .spice-dot.filled { background: var(--red); }
+    .spice-label { font-size: var(--text-xs); color: var(--text-secondary); margin-left: 4px; }
+
+    /* stat card */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px; text-align: center;
+    }
+    .stat-label { font-size: var(--text-xs); color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stat-value { font-size: var(--text-md); font-weight: 800; color: var(--text); }
+    .stat-unit { font-size: var(--text-xs); color: var(--muted); }
+
+    /* recipe card mini */
+    .card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .recipe-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .recipe-card-img {
+      height: 100px;
+      background: linear-gradient(135deg, #f5e0c0, #e8c898);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: var(--text-xs);
+    }
+    .recipe-card-body { padding: 10px 12px; }
+    .recipe-card-title { font-size: var(--text-sm); font-weight: 700; margin-bottom: 6px; }
+    .recipe-card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+    .recipe-card-meta { font-size: var(--text-xs); color: var(--muted); display: flex; justify-content: space-between; }
+
+    /* input */
+    .input-row { display: flex; flex-direction: column; gap: 10px; max-width: 400px; }
+    .input-field {
+      padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: var(--text-base); outline: none;
+      background: var(--surface); color: var(--text);
+      transition: border-color 0.15s;
+    }
+    .input-field:focus { border-color: var(--orange); }
+    .input-field.error { border-color: var(--red); background: var(--red-light); }
+    .input-field.success { border-color: var(--green); background: var(--green-light); }
+
+    /* alert / notice boxes */
+    .notice-stack { display: flex; flex-direction: column; gap: 10px; }
+    .notice {
+      padding: 12px 16px; border-radius: var(--radius);
+      font-size: var(--text-sm); line-height: 1.5;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .notice-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .notice-info     { background: var(--yellow-light); border: 1px solid var(--yellow-muted); color: #7a4400; }
+    .notice-success  { background: var(--green-light);  border: 1px solid var(--green-muted);  color: #1e4a0a; }
+    .notice-warning  { background: var(--orange-light); border: 1px solid var(--orange-muted); color: #7a3000; }
+    .notice-error    { background: var(--red-light);    border: 1px solid var(--red-muted);    color: #7a1000; }
+
+    /* ── Gradient demos ── */
+    .gradient-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .gradient-swatch {
+      height: 80px; border-radius: var(--radius-lg);
+      display: flex; align-items: flex-end; padding: 10px 12px;
+    }
+    .gradient-label {
+      font-size: var(--text-xs); font-weight: 700; color: #fff;
+      background: rgba(0,0,0,0.22); padding: 2px 8px;
+      border-radius: var(--radius-sm); backdrop-filter: blur(4px);
+    }
+
+    /* ── Nav demo ── */
+    .nav-demo {
+      background: linear-gradient(90deg, #2a1500, #7a2a00, #a83800);
+      border-bottom: 3px solid var(--orange);
+      padding: 0 20px; height: 50px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-radius: var(--radius);
+    }
+    .nav-demo-logo { font-size: 14px; font-weight: 800; color: var(--yellow-muted); }
+    .nav-demo-links { display: flex; gap: 4px; }
+    .nav-demo-btn {
+      padding: 5px 12px; border-radius: var(--radius);
+      font-size: var(--text-xs); font-weight: 600; cursor: default;
+      border: none; color: #f5ddb8; background: none;
+    }
+    .nav-demo-btn.active { background: var(--orange); color: #fff; }
+
+    /* ── Sticky ToC ── */
+    .toc {
+      position: fixed; right: 24px; top: 80px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px;
+      box-shadow: var(--shadow-md); min-width: 160px;
+      font-size: var(--text-xs);
+    }
+    .toc-title { font-weight: 700; color: var(--orange); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.6px; }
+    .toc a {
+      display: block; padding: 4px 0; color: var(--text-secondary);
+      text-decoration: none; font-weight: 500;
+      border-left: 2px solid transparent; padding-left: 8px;
+      transition: all 0.15s;
+    }
+    .toc a:hover { color: var(--orange); border-left-color: var(--orange); }
+
+    @media (max-width: 1100px) { .toc { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- ── GUIDE NAV ── -->
+<nav class="guide-nav">
+  <div class="guide-logo">🥦 Friday Night <span>Veggie Wins</span></div>
+  <span class="guide-badge">Design Guide v1.1</span>
+</nav>
+
+<!-- ── TABLE OF CONTENTS (sticky) ── -->
+<nav class="toc">
+  <div class="toc-title">Contents</div>
+  <a href="#colours">Colour Palette</a>
+  <a href="#tokens">Design Tokens</a>
+  <a href="#gradients">Gradients</a>
+  <a href="#typography">Typography</a>
+  <a href="#spacing">Spacing</a>
+  <a href="#radii">Border Radius</a>
+  <a href="#shadows">Shadows</a>
+  <a href="#components">Components</a>
+  <a href="#navigation">Navigation</a>
+  <a href="#fridge">Fridge Page</a>
+  <a href="#usage">Usage Rules</a>
+</nav>
+
+<div class="guide-wrap">
+
+  <!-- ══════════════════════
+       INTRO
+  ══════════════════════ -->
+  <div style="margin-bottom: 48px;">
+    <h1 style="font-size: var(--text-3xl); font-weight: 800; margin-bottom: 10px; line-height:1.2;">
+      Design System Guide
+    </h1>
+    <p style="font-size: var(--text-md); color: var(--text-secondary); max-width: 600px; line-height:1.7;">
+      The visual language for <strong>Family Fork</strong>. Colours are drawn from the natural palette of food — the warmth of spices, the brightness of citrus, the freshness of herbs. All tokens are defined as CSS variables for consistent implementation.
+    </p>
+  </div>
+
+  <!-- ══════════════════════
+       COLOUR PALETTE
+  ══════════════════════ -->
+  <div class="guide-section" id="colours">
+    <h2 class="guide-section-title">🎨 Colour Palette</h2>
+    <p class="guide-section-sub">Four food-inspired hues plus neutrals. Every colour has a base, a light tint, and a muted mid-tone.</p>
+
+    <div class="palette-grid">
+
+      <div class="swatch-group">
+        <div class="swatch-group-label">Green — Fresh · Primary</div>
+        <div class="swatch s-green"><span class="swatch-label">#3a8c1e</span></div>
+        <div class="swatch-meta">Base · CTA · Nav active · Step numbers</div>
+        <div class="swatch s-green-muted" style="height:40px; margin-top:6px;"><span class="swatch-label">#82c44a</span></div>
+        <div class="swatch-meta">Muted · Borders on selected states</div>
+        <div class="swatch s-green-light" style="height:32px; margin-top:6px;"><span class="swatch-label" style="color:#2d6a10;">#eef8e6</span></div>
+        <div class="swatch-meta">Light · Diet tag bg · Hover fills</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch-group-label">Orange — Warm · Action</div>
+        <div class="swatch s-orange"><span class="swatch-label">#e86d10</span></div>
+        <div class="swatch-meta">Base · Primary buttons · Nav active · Links</div>
+        <div class="swatch s-orange-muted" style="height:40px; margin-top:6px;"><span class="swatch-label">#f5a455</span></div>
+        <div class="swatch-meta">Muted · Hover states · Pill borders</div>
+        <div class="swatch s-orange-light" style="height:32px; margin-top:6px;"><span class="swatch-label" style="color:#a85000;">#fff3e6</span></div>
+        <div class="swatch-meta">Light · Cuisine tag bg · Row hover bg</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch-group-label">Red — Spice · Alert</div>
+        <div class="swatch s-red"><span class="swatch-label">#c8301a</span></div>
+        <div class="swatch-meta">Base · Spice dots · Destructive actions</div>
+        <div class="swatch s-red-muted" style="height:40px; margin-top:6px;"><span class="swatch-label">#e8735a</span></div>
+        <div class="swatch-meta">Muted · Error borders · Hover remove</div>
+        <div class="swatch s-red-light" style="height:32px; margin-top:6px;"><span class="swatch-label" style="color:#c8301a;">#fdeae6</span></div>
+        <div class="swatch-meta">Light · Spice tag bg · Error input bg</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch-group-label">Yellow — Highlight · Info</div>
+        <div class="swatch s-yellow"><span class="swatch-label">#e8a800</span></div>
+        <div class="swatch-meta">Base · Nutrition tags · Accent highlights</div>
+        <div class="swatch s-yellow-muted" style="height:40px; margin-top:6px;"><span class="swatch-label">#f5c842</span></div>
+        <div class="swatch-meta">Muted · Strip borders · Slider accent</div>
+        <div class="swatch s-yellow-light" style="height:32px; margin-top:6px;"><span class="swatch-label" style="color:#8a6200;">#fff8d6</span></div>
+        <div class="swatch-meta">Light · Annotation bg · Preview block bg</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch-group-label">Neutrals — Canvas</div>
+        <div class="swatch s-text"><span class="swatch-label">#2a1500</span></div>
+        <div class="swatch-meta">Text primary — warm near-black</div>
+        <div class="swatch s-text-sec" style="height:40px; margin-top:6px;"><span class="swatch-label">#7a4e20</span></div>
+        <div class="swatch-meta">Text secondary — warm brown</div>
+        <div class="swatch s-muted" style="height:32px; margin-top:6px;"><span class="swatch-label">#c4a882</span></div>
+        <div class="swatch-meta">Muted text — metadata, timestamps</div>
+      </div>
+
+      <div class="swatch-group">
+        <div class="swatch-group-label">Neutrals — Surface</div>
+        <div class="swatch s-bg"><span class="swatch-label" style="color:#7a4e20;">#fdf6ec</span></div>
+        <div class="swatch-meta">Page background — warm cream</div>
+        <div class="swatch s-surface" style="height:40px; margin-top:6px;"><span class="swatch-label" style="color:#7a4e20;">#ffffff</span></div>
+        <div class="swatch-meta">Card / panel surface — pure white</div>
+        <div class="swatch s-border" style="height:32px; margin-top:6px;"><span class="swatch-label" style="color:#7a4e20;">#f0d9b8</span></div>
+        <div class="swatch-meta">Borders — warm beige dividers</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       DESIGN TOKENS
+  ══════════════════════ -->
+  <div class="guide-section" id="tokens">
+    <h2 class="guide-section-title">🔑 Design Tokens</h2>
+    <p class="guide-section-sub">All values are defined as CSS custom properties. Always reference the token, never the raw hex.</p>
+
+    <table class="token-table">
+      <thead>
+        <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>--green</code></td><td><span class="token-dot" style="background:#3a8c1e;"></span>#3a8c1e</td><td>Primary action, nav active, step circles</td></tr>
+        <tr><td><code>--green-light</code></td><td><span class="token-dot" style="background:#eef8e6; border:1px solid #ccc;"></span>#eef8e6</td><td>Diet tag background, success fill</td></tr>
+        <tr><td><code>--green-muted</code></td><td><span class="token-dot" style="background:#82c44a;"></span>#82c44a</td><td>Selected chip border</td></tr>
+        <tr><td><code>--orange</code></td><td><span class="token-dot" style="background:#e86d10;"></span>#e86d10</td><td>Primary buttons, active nav tab, links</td></tr>
+        <tr><td><code>--orange-light</code></td><td><span class="token-dot" style="background:#fff3e6; border:1px solid #ccc;"></span>#fff3e6</td><td>Cuisine tag bg, selected chip bg, hover rows</td></tr>
+        <tr><td><code>--orange-muted</code></td><td><span class="token-dot" style="background:#f5a455;"></span>#f5a455</td><td>Hover borders, recipe card hover</td></tr>
+        <tr><td><code>--red</code></td><td><span class="token-dot" style="background:#c8301a;"></span>#c8301a</td><td>Spice dots, delete/remove, filter panel title</td></tr>
+        <tr><td><code>--red-light</code></td><td><span class="token-dot" style="background:#fdeae6; border:1px solid #ccc;"></span>#fdeae6</td><td>Spice tag bg, error input bg</td></tr>
+        <tr><td><code>--red-muted</code></td><td><span class="token-dot" style="background:#e8735a;"></span>#e8735a</td><td>Error borders, remove-pill hover</td></tr>
+        <tr><td><code>--yellow</code></td><td><span class="token-dot" style="background:#e8a800;"></span>#e8a800</td><td>Nutrition tags, nav logo text</td></tr>
+        <tr><td><code>--yellow-light</code></td><td><span class="token-dot" style="background:#fff8d6; border:1px solid #ccc;"></span>#fff8d6</td><td>Annotation bg, active filter strip, preview block</td></tr>
+        <tr><td><code>--yellow-muted</code></td><td><span class="token-dot" style="background:#f5c842;"></span>#f5c842</td><td>Strip borders, slider accent</td></tr>
+        <tr><td><code>--bg</code></td><td><span class="token-dot" style="background:#fdf6ec; border:1px solid #ccc;"></span>#fdf6ec</td><td>Page background</td></tr>
+        <tr><td><code>--surface</code></td><td><span class="token-dot" style="background:#fff; border:1px solid #ccc;"></span>#ffffff</td><td>Cards, panels, modals</td></tr>
+        <tr><td><code>--border</code></td><td><span class="token-dot" style="background:#f0d9b8;"></span>#f0d9b8</td><td>All dividers and outlines</td></tr>
+        <tr><td><code>--muted</code></td><td><span class="token-dot" style="background:#c4a882;"></span>#c4a882</td><td>Metadata, timestamps, placeholder text</td></tr>
+        <tr><td><code>--text</code></td><td><span class="token-dot" style="background:#2a1500;"></span>#2a1500</td><td>Body copy, headings</td></tr>
+        <tr><td><code>--text-secondary</code></td><td><span class="token-dot" style="background:#7a4e20;"></span>#7a4e20</td><td>Secondary labels, captions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════
+       GRADIENTS
+  ══════════════════════ -->
+  <div class="guide-section" id="gradients">
+    <h2 class="guide-section-title">🌈 Gradients</h2>
+    <p class="guide-section-sub">Used for high-impact surfaces — navigation, hero, and image placeholders. Never use gradients on body text.</p>
+
+    <div class="gradient-grid">
+      <div>
+        <div class="gradient-swatch" style="background: linear-gradient(90deg, #2a1500, #7a2a00, #a83800);">
+          <span class="gradient-label">Nav Bar</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">
+          <code>linear-gradient(90deg, #2a1500, #7a2a00, #a83800)</code>
+        </div>
+      </div>
+      <div>
+        <div class="gradient-swatch" style="background: linear-gradient(135deg, #7a2200, #c83800, #e86d10, #3a8c1e);">
+          <span class="gradient-label">Hero Section</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">
+          <code>linear-gradient(135deg, red → orange → green)</code>
+        </div>
+      </div>
+      <div>
+        <div class="gradient-swatch" style="background: linear-gradient(135deg, #e86d10, #c83800);">
+          <span class="gradient-label">Hero Card Image</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">
+          <code>linear-gradient(135deg, --orange, --red)</code>
+        </div>
+      </div>
+      <div>
+        <div class="gradient-swatch" style="background: linear-gradient(135deg, #e86d10, #c83800, #3a8c1e);">
+          <span class="gradient-label">Recipe Detail Image</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">
+          <code>linear-gradient(135deg, orange → red → green)</code>
+        </div>
+      </div>
+      <div>
+        <div class="gradient-swatch" style="background: linear-gradient(135deg, #e86d10, #c83800); border-radius:50%; width:40px; height:40px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center;">
+        </div>
+        <div style="margin-top:6px;">
+          <div style="display:inline-flex; width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#e86d10,#c83800); align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px;">3</div>
+          <span style="font-size:var(--text-xs); color:var(--muted); margin-left:8px;">Step circles · Spice bubble</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:4px;"><code>linear-gradient(135deg, --orange, --red)</code></div>
+      </div>
+      <div>
+        <div class="gradient-swatch" style="background: linear-gradient(90deg, #fff8d6, #fff3e6);">
+          <span class="gradient-label" style="color:#7a4400;">On-demand Strip</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">
+          <code>linear-gradient(90deg, --yellow-light, --orange-light)</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       TYPOGRAPHY
+  ══════════════════════ -->
+  <div class="guide-section" id="typography">
+    <h2 class="guide-section-title">🔤 Typography</h2>
+    <p class="guide-section-sub">System font stack. Eight sizes, two weights in regular use (600 semibold, 700/800 bold).</p>
+
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px; font-size: var(--text-xs); color: var(--muted);">
+      <strong style="color: var(--text-secondary);">Font stack:</strong>
+      <code>-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif</code>
+    </div>
+
+    <div class="type-scale">
+      <div class="type-row"><div class="type-meta"><strong>3xl · 34px · 800</strong>Hero titles</div><span style="font-size:34px; font-weight:800; line-height:1.2;">Recipe Name</span></div>
+      <div class="type-row"><div class="type-meta"><strong>2xl · 26px · 800</strong>Page headings</div><span style="font-size:26px; font-weight:800;">My Cookbook</span></div>
+      <div class="type-row"><div class="type-meta"><strong>xl · 22px · 800</strong>Section titles</div><span style="font-size:22px; font-weight:800;">Household Profile</span></div>
+      <div class="type-row"><div class="type-meta"><strong>lg · 18px · 700</strong>Sub-section labels</div><span style="font-size:18px; font-weight:700;">This Week's Recipes</span></div>
+      <div class="type-row"><div class="type-meta"><strong>md · 16px · 700</strong>Card titles, stat values</div><span style="font-size:16px; font-weight:700;">Palak Paneer with Jeera Rice</span></div>
+      <div class="type-row"><div class="type-meta"><strong>base · 14px · 400</strong>Body copy, instructions</div><span style="font-size:14px;">Add the spinach purée and mix well. Season with garam masala and salt. Simmer for 5 minutes.</span></div>
+      <div class="type-row"><div class="type-meta"><strong>sm · 12px · 600</strong>Metadata, dates, badges</div><span style="font-size:12px; font-weight:600; color:var(--muted);">Apr 24 · 35 min · 4 serves</span></div>
+      <div class="type-row"><div class="type-meta"><strong>xs · 11px · 700</strong>Tags, eyebrows, labels</div><span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--orange);">Today's Recipe · Indian</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       SPACING
+  ══════════════════════ -->
+  <div class="guide-section" id="spacing">
+    <h2 class="guide-section-title">📐 Spacing Scale</h2>
+    <p class="guide-section-sub">8px base unit. All padding and margin values are multiples of this unit.</p>
+
+    <div class="space-grid">
+      <div class="space-row"><span class="space-label"><code>--space-xs</code></span><div class="space-bar-wrap"><div class="space-bar" style="width:4px;"></div></div><span class="space-val">4px</span></div>
+      <div class="space-row"><span class="space-label"><code>--space-sm</code></span><div class="space-bar-wrap"><div class="space-bar" style="width:8px;"></div></div><span class="space-val">8px</span></div>
+      <div class="space-row"><span class="space-label"><code>--space-md</code></span><div class="space-bar-wrap"><div class="space-bar" style="width:16px;"></div></div><span class="space-val">16px</span></div>
+      <div class="space-row"><span class="space-label"><code>--space-lg</code></span><div class="space-bar-wrap"><div class="space-bar" style="width:24px;"></div></div><span class="space-val">24px</span></div>
+      <div class="space-row"><span class="space-label"><code>--space-xl</code></span><div class="space-bar-wrap"><div class="space-bar" style="width:32px;"></div></div><span class="space-val">32px</span></div>
+      <div class="space-row"><span class="space-label"><code>--space-2xl</code></span><div class="space-bar-wrap"><div class="space-bar" style="width:48px;"></div></div><span class="space-val">48px</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       BORDER RADIUS
+  ══════════════════════ -->
+  <div class="guide-section" id="radii">
+    <h2 class="guide-section-title">⬜ Border Radius</h2>
+    <p class="guide-section-sub">Four radius levels plus pill. Larger surfaces use larger radii.</p>
+
+    <div class="radius-grid">
+      <div class="radius-card" style="border-radius: 4px;">
+        <div class="radius-label"><code>--radius-sm</code></div>
+        <div style="font-size: var(--text-xs); color: var(--muted);">4px · Code labels, badges</div>
+      </div>
+      <div class="radius-card" style="border-radius: 8px;">
+        <div class="radius-label"><code>--radius</code></div>
+        <div style="font-size: var(--text-xs); color: var(--muted);">8px · Buttons, inputs, tags</div>
+      </div>
+      <div class="radius-card" style="border-radius: 16px;">
+        <div class="radius-label"><code>--radius-lg</code></div>
+        <div style="font-size: var(--text-xs); color: var(--muted);">16px · Cards, panels, modals</div>
+      </div>
+      <div class="radius-card" style="border-radius: 99px; width: 160px;">
+        <div class="radius-label"><code>--radius-xl</code></div>
+        <div style="font-size: var(--text-xs); color: var(--muted);">99px · Pills, chips, dots</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       SHADOWS
+  ══════════════════════ -->
+  <div class="guide-section" id="shadows">
+    <h2 class="guide-section-title">🌑 Shadows</h2>
+    <p class="guide-section-sub">Warm-tinted shadows (rgba 60,20,0) to stay cohesive with the food palette. Two levels.</p>
+
+    <div class="shadow-grid">
+      <div class="shadow-card s-sm">
+        <div class="shadow-label">shadow-sm</div>
+        <div class="shadow-val">0 1px 4px rgba(60,20,0,0.09)</div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">Cards at rest, nav bar</div>
+      </div>
+      <div class="shadow-card s-md">
+        <div class="shadow-label">shadow-md</div>
+        <div class="shadow-val">0 4px 18px rgba(60,20,0,0.13)</div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:6px;">Cards on hover, filter panel, modals</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       COMPONENTS
+  ══════════════════════ -->
+  <div class="guide-section" id="components">
+    <h2 class="guide-section-title">🧩 Components</h2>
+    <p class="guide-section-sub">Reusable UI building blocks with their correct colour assignments.</p>
+
+    <div class="component-grid">
+
+      <!-- Buttons -->
+      <div class="component-block">
+        <div class="component-block-title">Buttons</div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <div style="font-size:var(--text-xs); color:var(--muted); margin-bottom:8px; font-weight:600;">Variants</div>
+            <div class="btn-row">
+              <button class="btn btn-primary">Primary (Orange)</button>
+              <button class="btn btn-secondary">Destructive (Red)</button>
+              <button class="btn btn-success">Success (Green)</button>
+              <button class="btn btn-yellow">Highlight (Yellow)</button>
+              <button class="btn btn-outline">Outline</button>
+              <button class="btn btn-ghost">Ghost</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:var(--text-xs); color:var(--muted); margin-bottom:8px; font-weight:600;">Sizes</div>
+            <div class="btn-row">
+              <button class="btn btn-primary btn-sm">Small</button>
+              <button class="btn btn-primary">Default</button>
+              <button class="btn btn-primary btn-lg">Large</button>
+            </div>
+          </div>
+          <div style="font-size:var(--text-xs); background:var(--yellow-light); border:1px solid var(--yellow-muted); padding:8px 12px; border-radius:var(--radius); color:#7a4400;">
+            <strong style="color:var(--red);">Rule:</strong> Use Orange for all primary actions. Red only for delete / remove. Green for confirmation / success. Never use Yellow as a standalone CTA — pair it with dark text.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="component-block">
+        <div class="component-block-title">Tags &amp; Badges</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <div style="font-size:var(--text-xs); color:var(--muted); margin-bottom:8px; font-weight:600;">Semantic Tags</div>
+            <div class="tag-row">
+              <span class="tag tag-cuisine">🍛 Indian</span>
+              <span class="tag tag-cuisine">🍝 Italian</span>
+              <span class="tag tag-cuisine">🌮 Mexican</span>
+              <span class="tag tag-cuisine">🫒 Mediterranean</span>
+            </div>
+          </div>
+          <div>
+            <div class="tag-row">
+              <span class="tag tag-nutrition">💪 Protein-rich</span>
+              <span class="tag tag-nutrition">🩸 Iron-rich</span>
+              <span class="tag tag-nutrition">⚖️ Balanced</span>
+              <span class="tag tag-nutrition">🍬 Sugar-free</span>
+            </div>
+          </div>
+          <div>
+            <div class="tag-row">
+              <span class="tag tag-diet">🥗 Vegetarian</span>
+              <span class="tag tag-diet">🌱 Vegan</span>
+              <span class="tag tag-diet">🩺 Diabetic-friendly</span>
+            </div>
+          </div>
+          <div>
+            <div class="tag-row">
+              <span class="tag tag-spice">🌶 Spice 1/5</span>
+              <span class="tag tag-spice">🌶🌶 Spice 3/5</span>
+              <span class="tag tag-spice">🌶🌶🌶 Spice 5/5</span>
+            </div>
+          </div>
+          <div style="font-size:var(--text-xs); background:var(--yellow-light); border:1px solid var(--yellow-muted); padding:8px 12px; border-radius:var(--radius); color:#7a4400;">
+            <strong style="color:var(--red);">Rule:</strong> Cuisine → Amber. Nutrition → Yellow. Diet → Green. Spice → Red. Never mix tag colours across categories.
+          </div>
+        </div>
+      </div>
+
+      <!-- Chips -->
+      <div class="component-block">
+        <div class="component-block-title">Selection Chips (Profile &amp; Filters)</div>
+        <div class="chip-row" style="margin-bottom:12px;">
+          <div class="chip">Vegetarian</div>
+          <div class="chip selected">Vegan</div>
+          <div class="chip selected">🍛 Indian</div>
+          <div class="chip">Protein-rich</div>
+          <div class="chip selected">Sugar-free</div>
+          <div class="chip">Seafood OK</div>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted);">Default: neutral border. Selected: orange background + border.</div>
+      </div>
+
+      <!-- Spice Indicator -->
+      <div class="component-block">
+        <div class="component-block-title">Spice Level Indicator</div>
+        <div class="spice-row">
+          <div><div class="spice"><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div><span class="spice-label">1 — Very Mild</span></div>
+          <div><div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div></div><span class="spice-label">3 — Medium</span></div>
+          <div><div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div></div><span class="spice-label">5 — Very Hot</span></div>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:10px;">Filled dot: <code>--red</code>. Empty dot: <code>--border</code>. Always 5 dots, always red fill.</div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="component-block">
+        <div class="component-block-title">Stat Cards (Recipe Detail)</div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-label">Prep</div><div class="stat-value">10 <span class="stat-unit">min</span></div></div>
+          <div class="stat-card"><div class="stat-label">Cook</div><div class="stat-value">25 <span class="stat-unit">min</span></div></div>
+          <div class="stat-card"><div class="stat-label">Servings</div><div class="stat-value">4 <span class="stat-unit">people</span></div></div>
+          <div class="stat-card"><div class="stat-label">Age Safe</div><div class="stat-value">3+ <span class="stat-unit">yrs</span></div></div>
+        </div>
+      </div>
+
+      <!-- Recipe Cards -->
+      <div class="component-block">
+        <div class="component-block-title">Recipe Card</div>
+        <div class="card-row">
+          <div class="recipe-card">
+            <div class="recipe-card-img">Food Image</div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Palak Paneer with Jeera Rice</div>
+              <div class="recipe-card-tags"><span class="tag tag-cuisine">Indian</span><span class="tag tag-diet">Vegetarian</span></div>
+              <div class="recipe-card-meta"><span>35 min · 4 serves</span><div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div></div></div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="recipe-card-img">Food Image</div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Black Bean Tacos</div>
+              <div class="recipe-card-tags"><span class="tag tag-cuisine">Mexican</span><span class="tag tag-nutrition">Iron-rich</span></div>
+              <div class="recipe-card-meta"><span>20 min · 4 serves</span><div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div></div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="recipe-card-img">Food Image</div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Falafel Pita</div>
+              <div class="recipe-card-tags"><span class="tag tag-cuisine">Mediterranean</span><span class="tag tag-nutrition">Protein-rich</span></div>
+              <div class="recipe-card-meta"><span>35 min · 4 serves</span><div class="spice"><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inputs -->
+      <div class="component-block">
+        <div class="component-block-title">Form Inputs</div>
+        <div class="input-row">
+          <input class="input-field" type="text" placeholder="Default — click to focus" />
+          <input class="input-field" type="text" value="Focused state" style="border-color:var(--orange);" />
+          <input class="input-field error" type="text" value="Error state" />
+          <input class="input-field success" type="text" value="Success state" />
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:10px;">Focus: orange border. Error: red border + red-light bg. Success: green border + green-light bg.</div>
+      </div>
+
+      <!-- Notice / Alert boxes -->
+      <div class="component-block">
+        <div class="component-block-title">Notice &amp; Alert Boxes</div>
+        <div class="notice-stack">
+          <div class="notice notice-info"><span class="notice-icon">💡</span><div><strong>Annotation:</strong> Used for wireframe annotations and informational callouts. Yellow background.</div></div>
+          <div class="notice notice-success"><span class="notice-icon">✅</span><div><strong>Success:</strong> Recipe saved to cookbook. Email sent successfully. Green background.</div></div>
+          <div class="notice notice-warning"><span class="notice-icon">⚠️</span><div><strong>Age Note:</strong> Paneer should be cut into small, soft cubes. Allergen guidance for youngest eater. Orange background.</div></div>
+          <div class="notice notice-error"><span class="notice-icon">🚫</span><div><strong>Error:</strong> Recipe generation failed. Please try again. Red background.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       NAVIGATION
+  ══════════════════════ -->
+  <div class="guide-section" id="navigation">
+    <h2 class="guide-section-title">🧭 Navigation Bar</h2>
+    <p class="guide-section-sub">Dark warm-brown gradient with orange accent border. Active state uses solid orange fill.</p>
+
+    <div class="nav-demo" style="margin-bottom:16px;">
+      <div class="nav-demo-logo">🥦 Friday Night <span style="color:#f5ddb8; font-weight:400;">Veggie Wins</span></div>
+      <div class="nav-demo-links">
+        <div class="nav-demo-btn active">Home</div>
+        <div class="nav-demo-btn">Cookbook</div>
+        <div class="nav-demo-btn">🧊 Fridge</div>
+        <div class="nav-demo-btn">My Profile</div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <div class="nav-demo-btn" style="border:1.5px solid rgba(255,255,255,0.25); border-radius:6px;">⚙ Profile</div>
+        <div class="nav-demo-btn" style="background:var(--orange); border-radius:6px; color:#fff;">+ Generate</div>
+      </div>
+    </div>
+
+    <table class="token-table">
+      <thead><tr><th>Element</th><th>Token / Value</th></tr></thead>
+      <tbody>
+        <tr><td>Background</td><td><code>linear-gradient(90deg, #2a1500, #7a2a00, #a83800)</code></td></tr>
+        <tr><td>Bottom border</td><td><code>3px solid --orange</code></td></tr>
+        <tr><td>Logo text</td><td><code>--yellow-muted</code> bold + <code>#f5ddb8</code> light</td></tr>
+        <tr><td>Nav links (default)</td><td><code>#f5ddb8</code></td></tr>
+        <tr><td>Nav links (hover)</td><td><code>rgba(255,255,255,0.12)</code> background</td></tr>
+        <tr><td>Nav link (active)</td><td><code>--orange</code> background fill</td></tr>
+        <tr><td>Nav right — Outline button</td><td><code>1.5px solid rgba(255,255,255,0.25)</code> border, transparent bg</td></tr>
+        <tr><td>Nav right — Primary button</td><td><code>--orange</code> background, white text</td></tr>
+        <tr><td>Nav pages</td><td>Home · Cookbook · 🧊 Fridge · My Profile</td></tr>
+        <tr><td>Height</td><td>58px</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════
+       FRIDGE PAGE
+  ══════════════════════ -->
+  <div class="guide-section" id="fridge">
+    <h2 class="guide-section-title">🧊 Fridge Page Components</h2>
+    <p class="guide-section-sub">The "What's in the Fridge?" feature uses several unique component patterns not found on other pages.</p>
+
+    <div class="component-grid">
+
+      <!-- Step header -->
+      <div class="component-block">
+        <div class="component-block-title">Step Header</div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div style="display:flex; align-items:flex-start; gap:14px; padding:16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);">
+            <div style="background:linear-gradient(135deg,var(--orange),var(--red)); color:#fff; font-weight:800; font-size:12px; min-width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+            <div>
+              <div style="font-weight:700; font-size:14px; margin-bottom:3px;">Fresh ingredients in your fridge</div>
+              <div style="font-size:12px; color:var(--muted);">Vegetables, dairy, proteins, condiments. Do not add grains unless you actually have them.</div>
+            </div>
+          </div>
+          <div style="font-size:var(--text-xs); color:var(--muted);">Step circle: <code>linear-gradient(135deg, --orange, --red)</code> · Label: 14px 700 · Hint: 12px muted</div>
+        </div>
+      </div>
+
+      <!-- Ingredient input + chips -->
+      <div class="component-block">
+        <div class="component-block-title">Ingredient Input &amp; Chips</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; gap:8px;">
+            <input class="input-field" type="text" placeholder="e.g. spinach, paneer, cherry tomatoes…" style="flex:1;" />
+            <button class="btn btn-primary">+ Add</button>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--orange-light); color:var(--orange); border:1.5px solid var(--orange-muted); padding:5px 10px; border-radius:var(--radius-xl); font-size:12px; font-weight:600;">
+              Spinach <button style="background:none; border:none; color:var(--orange); cursor:pointer; font-size:11px; padding:0; line-height:1;">✕</button>
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--orange-light); color:var(--orange); border:1.5px solid var(--orange-muted); padding:5px 10px; border-radius:var(--radius-xl); font-size:12px; font-weight:600;">
+              Paneer <button style="background:none; border:none; color:var(--orange); cursor:pointer; font-size:11px; padding:0; line-height:1;">✕</button>
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--orange-light); color:var(--orange); border:1.5px solid var(--orange-muted); padding:5px 10px; border-radius:var(--radius-xl); font-size:12px; font-weight:600;">
+              Cherry Tomatoes <button style="background:none; border:none; color:var(--orange); cursor:pointer; font-size:11px; padding:0; line-height:1;">✕</button>
+            </span>
+          </div>
+          <div style="font-size:var(--text-xs); color:var(--muted);">Chip bg: <code>--orange-light</code> · Border: <code>--orange-muted</code> · Text: <code>--orange</code> · Remove button: ✕ same colour</div>
+        </div>
+      </div>
+
+      <!-- Quick-add suggestion chips -->
+      <div class="component-block">
+        <div class="component-block-title">Quick-Add Suggestion Chips</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <div style="font-size:var(--text-xs); font-weight:700; color:var(--text-secondary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.6px;">Vegetables</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button style="background:var(--surface); border:1px solid var(--border); padding:5px 12px; border-radius:var(--radius-xl); font-size:12px; color:var(--text-secondary); cursor:pointer;">Spinach</button>
+              <button style="background:var(--surface); border:1px solid var(--border); padding:5px 12px; border-radius:var(--radius-xl); font-size:12px; color:var(--text-secondary); cursor:pointer;">Tomatoes</button>
+              <button style="background:var(--surface); border:1px solid var(--border); padding:5px 12px; border-radius:var(--radius-xl); font-size:12px; color:var(--text-secondary); cursor:pointer;">Bell Pepper</button>
+              <button style="background:var(--surface); border:1px solid var(--border); padding:5px 12px; border-radius:var(--radius-xl); font-size:12px; color:var(--text-secondary); cursor:pointer;">Mushrooms</button>
+            </div>
+          </div>
+          <div style="font-size:var(--text-xs); color:var(--muted);">Suggestion chips use the standard neutral chip style. Clicking adds to ingredient list. Three categories: Vegetables · Proteins &amp; Dairy · Aromatics &amp; Extras.</div>
+        </div>
+      </div>
+
+      <!-- Option chips (sauce / cuisine single-select) -->
+      <div class="component-block">
+        <div class="component-block-title">Option Chips — Single-Select (Sauce &amp; Cuisine)</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button style="display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1.5px solid var(--border); padding:8px 14px; border-radius:var(--radius-lg); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;">
+              <span style="font-size:16px;">🍅</span>Tomato-based
+            </button>
+            <button style="display:inline-flex; align-items:center; gap:6px; background:var(--orange-light); border:2px solid var(--orange); padding:8px 14px; border-radius:var(--radius-lg); font-size:13px; font-weight:600; color:var(--orange); cursor:pointer;">
+              <span style="font-size:16px;">🥥</span>Coconut Milk
+            </button>
+            <button style="display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1.5px solid var(--border); padding:8px 14px; border-radius:var(--radius-lg); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;">
+              <span style="font-size:16px;">🥛</span>Cream / Butter
+            </button>
+            <button style="display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1.5px solid var(--border); padding:8px 14px; border-radius:var(--radius-lg); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;">
+              <span style="font-size:16px;">🍳</span>Dry / No Sauce
+            </button>
+          </div>
+          <div style="font-size:var(--text-xs); color:var(--muted);">
+            Default: <code>--surface</code> bg, <code>--border</code> border, <code>--text-secondary</code> text.<br>
+            Selected: <code>--orange-light</code> bg, <code>--orange</code> border (2px), <code>--orange</code> text.<br>
+            Clicking the selected chip again deselects it (toggle). Only one chip per group can be selected.
+          </div>
+        </div>
+      </div>
+
+      <!-- Fridge result card -->
+      <div class="component-block">
+        <div class="component-block-title">Fridge Result Card</div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); display:flex; gap:0;">
+          <div style="width:160px; min-height:160px; background:linear-gradient(135deg,#f5e0c0,#e8c898); display:flex; align-items:center; justify-content:center; font-size:40px; flex-shrink:0;">🍽</div>
+          <div style="padding:20px; flex:1;">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--orange); margin-bottom:6px;">Recipe generated from your fridge</div>
+            <div style="font-size:20px; font-weight:800; margin-bottom:8px;">Palak Paneer Masala</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:12px; line-height:1.6;">A rich, fragrant curry using your fresh spinach and paneer — ready in 35 minutes with minimal pantry staples.</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+              <span style="background:var(--green-light); color:#1e6a10; border:1px solid #82c44a; padding:3px 10px; border-radius:var(--radius-xl); font-size:11px; font-weight:700;">✓ Spinach</span>
+              <span style="background:var(--green-light); color:#1e6a10; border:1px solid #82c44a; padding:3px 10px; border-radius:var(--radius-xl); font-size:11px; font-weight:700;">✓ Paneer</span>
+              <span style="background:var(--green-light); color:#1e6a10; border:1px solid #82c44a; padding:3px 10px; border-radius:var(--radius-xl); font-size:11px; font-weight:700;">✓ Cherry Tomatoes</span>
+            </div>
+            <div style="display:flex; gap:16px; font-size:12px; color:var(--muted); margin-bottom:14px;">
+              <span>⏱ 35 min</span><span>👥 4 servings</span><span>🌶 Spice 2/5</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-primary btn-sm">View Full Recipe →</button>
+              <button class="btn btn-ghost btn-sm">Try Different Recipe</button>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--muted); margin-top:10px;">
+          Fridge match badges: <code>--green-light</code> bg · <code>#82c44a</code> border · dark green text · ✓ prefix.<br>
+          Card: horizontal layout on desktop, stacks vertically on mobile. Image pane is 160px wide fixed.<br>
+          "Try Different Recipe" calls the same endpoint with previously seen titles excluded.
+        </div>
+      </div>
+
+      <!-- Count message states -->
+      <div class="component-block">
+        <div class="component-block-title">Ingredient Count Message</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="font-size:13px; color:var(--muted); padding:8px 14px; background:var(--bg); border-radius:var(--radius); border:1px solid var(--border);">
+            Add at least 1 ingredient to get started.
+          </div>
+          <div style="font-size:13px; font-weight:600; color:var(--green); padding:8px 14px; background:var(--green-light); border-radius:var(--radius); border:1px solid var(--green-muted);">
+            3 ingredients added — ready to generate!
+          </div>
+          <div style="font-size:var(--text-xs); color:var(--muted);">Empty state: muted text on <code>--bg</code>. Ready state: green text on <code>--green-light</code> with green border.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════
+       USAGE RULES
+  ══════════════════════ -->
+  <div class="guide-section" id="usage">
+    <h2 class="guide-section-title">📋 Usage Rules</h2>
+    <p class="guide-section-sub">Guardrails to keep the system consistent as the product grows.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+      <div class="component-block" style="border-left: 4px solid var(--green);">
+        <div class="component-block-title" style="color:var(--green);">✅ Do</div>
+        <ul style="font-size:var(--text-sm); line-height:2; padding-left:16px;">
+          <li>Use <strong>orange</strong> for all primary CTAs and active states</li>
+          <li>Use <strong>red</strong> only for spice indicators and destructive actions</li>
+          <li>Use <strong>yellow</strong> for passive info, previews, and annotations</li>
+          <li>Use <strong>green</strong> for success states, diet tags, and step circles</li>
+          <li>Use warm-tinted shadows <code>rgba(60,20,0,...)</code> always</li>
+          <li>Keep backgrounds warm: <code>--bg</code> (#fdf6ec) on all pages</li>
+          <li>Use <code>--border</code> (#f0d9b8) for all dividers</li>
+          <li>Reference tokens (<code>var(--orange)</code>), never raw hex values</li>
+        </ul>
+      </div>
+
+      <div class="component-block" style="border-left: 4px solid var(--red);">
+        <div class="component-block-title" style="color:var(--red);">🚫 Don't</div>
+        <ul style="font-size:var(--text-sm); line-height:2; padding-left:16px;">
+          <li>Don't use cool greys or blue-tinted neutrals</li>
+          <li>Don't mix tag colour categories (e.g. yellow cuisine tag)</li>
+          <li>Don't use red as a primary button colour</li>
+          <li>Don't use yellow as standalone CTA — illegible contrast</li>
+          <li>Don't use gradients on body text or small labels</li>
+          <li>Don't add colours outside the four-hue palette without approval</li>
+          <li>Don't use hard black (<code>#000</code>) — use <code>--text</code> instead</li>
+          <li>Don't use pure blue shadows — keep them warm-tinted</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="text-align:center; padding: 24px; font-size: var(--text-xs); color: var(--muted); border-top: 1px solid var(--border);">
+    <span style="background:linear-gradient(90deg,var(--orange),var(--red)); color:#fff; padding:2px 8px; border-radius:4px; font-weight:700; margin-right:6px;">DESIGN GUIDE</span>
+    Family Fork · v1.1 · Last updated 2026-04-24
+  </div>
+
+</div>
+</body>
+</html>

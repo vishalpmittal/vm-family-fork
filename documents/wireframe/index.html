@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Fork — Wireframe</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── Food palette: yellow · orange · red · green ── */
+      --bg: #fdf6ec;
+      --surface: #ffffff;
+      --border: #f0d9b8;
+      --muted: #c4a882;
+      --text: #2a1500;
+      --text-secondary: #7a4e20;
+
+      /* primary = fresh green */
+      --accent: #3a8c1e;
+      --accent-light: #eef8e6;
+      --accent-muted: #82c44a;
+
+      /* orange – cuisine / nav highlight */
+      --orange: #e86d10;
+      --orange-light: #fff3e6;
+      --orange-muted: #f5a455;
+
+      /* red – spice / alert */
+      --red: #c8301a;
+      --red-light: #fdeae6;
+      --red-muted: #e8735a;
+
+      /* yellow – nutrition / highlight */
+      --yellow: #e8a800;
+      --yellow-light: #fff8d6;
+      --yellow-muted: #f5c842;
+
+      /* tag colours */
+      --tag-cuisine: #fff0d6;
+      --tag-cuisine-text: #a85000;
+      --tag-nutrition: #fff8d6;
+      --tag-nutrition-text: #8a6200;
+      --tag-diet: #eef8e6;
+      --tag-diet-text: #2d6a10;
+
+      --radius: 8px;
+      --radius-lg: 16px;
+      --shadow: 0 1px 4px rgba(60,20,0,0.09);
+      --shadow-md: 0 4px 18px rgba(60,20,0,0.13);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: linear-gradient(90deg, #2a1500 0%, #7a2a00 50%, #a83800 100%);
+      border-bottom: 3px solid var(--orange);
+      padding: 0 32px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(60,20,0,0.28);
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--yellow-muted);
+      letter-spacing: -0.3px;
+    }
+    .nav-logo span { color: #f5ddb8; font-weight: 500; }
+    .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+    .nav-links button {
+      background: none;
+      border: none;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      color: #f5ddb8;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links button:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-links button.active { background: var(--orange); color: #fff; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      border: none; transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-outline { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); color: #f5ddb8; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* ── PAGE SHELL ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block; padding: 3px 9px; border-radius: 99px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.2px;
+    }
+    .tag-cuisine { background: var(--tag-cuisine); color: var(--tag-cuisine-text); }
+    .tag-nutrition { background: var(--tag-nutrition); color: var(--tag-nutrition-text); }
+    .tag-diet { background: var(--tag-diet); color: var(--tag-diet-text); }
+    .tag-spice { background: var(--red-light); color: var(--red); }
+
+    /* ── SPICE DOTS ── */
+    .spice { display: inline-flex; gap: 3px; align-items: center; }
+    .spice-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border);
+    }
+    .spice-dot.filled { background: var(--red); }
+
+    /* ── PLACEHOLDER IMAGE ── */
+    .img-placeholder {
+      background: linear-gradient(135deg, #f5e0c0 0%, #e8c898 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 11px; font-weight: 500;
+      border-radius: var(--radius);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .img-placeholder svg { opacity: 0.4; }
+
+    /* ══════════════════════════════════
+       PAGE 1 — HOMEPAGE
+    ══════════════════════════════════ */
+    .home-hero {
+      background: linear-gradient(135deg, #7a2200 0%, #c83800 40%, #e86d10 75%, #3a8c1e 100%);
+      color: #fff;
+      padding: 48px 32px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--yellow-muted); margin-bottom: 12px;
+    }
+    .hero-title { font-size: 34px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+    .hero-sub { font-size: 14px; color: #fde0c0; margin-bottom: 24px; }
+    .hero-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .hero-tag {
+      background: rgba(255,255,255,0.18); color: #fff;
+      padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .hero-actions { display: flex; gap: 10px; }
+    .btn-white { background: #fff; color: var(--orange); font-weight: 700; }
+    .btn-ghost { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.35); }
+    .hero-card {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .hero-card-img {
+      height: 200px;
+      background: linear-gradient(135deg, #e86d10, #c83800);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-card-body { padding: 16px; }
+    .hero-card-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--yellow-muted); margin-bottom: 6px; }
+    .hero-card-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .hero-card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .hero-card-tag { background: rgba(255,255,255,0.18); color: #fff3d6; padding: 3px 8px; border-radius: 99px; font-size: 11px; }
+    .hero-card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #fde0c0; }
+
+    .home-section { padding: 32px; }
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .section-title { font-size: 18px; font-weight: 700; }
+    .section-link { font-size: 13px; color: var(--orange); font-weight: 600; cursor: pointer; background: none; border: none; }
+    .section-link:hover { text-decoration: underline; color: var(--red); }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .recipe-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.15s;
+      box-shadow: var(--shadow);
+    }
+    .recipe-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--orange-muted); }
+    .recipe-card-img { height: 130px; }
+    .recipe-card-body { padding: 12px; }
+    .recipe-card-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+    .recipe-card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+    .recipe-card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted); }
+
+    .divider { height: 1px; background: var(--border); margin: 0 32px; }
+
+    /* ══════════════════════════════════
+       PAGE 2 — COOKBOOK
+    ══════════════════════════════════ */
+    .cookbook-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+    }
+    .cookbook-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .cookbook-title { font-size: 22px; font-weight: 800; }
+    .cookbook-count { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 14px;
+    }
+    .search-bar input {
+      flex: 1; border: none; background: none; font-size: 13px; outline: none; color: var(--text);
+    }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-icon { color: var(--muted); flex-shrink: 0; }
+
+    /* active filter pills strip */
+    .active-filters-strip {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: 10px 32px; background: var(--yellow-light);
+      border-bottom: 2px solid var(--yellow-muted);
+      font-size: 12px;
+    }
+    .active-filters-strip.hidden { display: none; }
+    .active-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--surface); border: 1px solid var(--orange-muted);
+      color: var(--orange); padding: 4px 10px; border-radius: 99px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .active-pill:hover { background: var(--red-light); border-color: var(--red); color: var(--red); }
+    .clear-all-btn {
+      margin-left: auto; font-size: 12px; font-weight: 700; color: var(--red);
+      background: none; border: none; cursor: pointer; text-decoration: underline;
+    }
+
+    /* two-column layout */
+    .cookbook-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      align-items: start;
+      min-height: calc(100vh - 120px);
+    }
+
+    /* ── LEFT FILTER PANEL ── */
+    .filter-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .filter-panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-panel-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--red); }
+    .filter-clear-all {
+      font-size: 11px; color: var(--orange); font-weight: 600;
+      background: none; border: none; cursor: pointer;
+    }
+    .filter-clear-all:hover { text-decoration: underline; color: var(--red); }
+
+    /* collapsible filter group */
+    .filter-group { border-bottom: 1px solid var(--border); }
+    .filter-group-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 16px; cursor: pointer;
+      user-select: none;
+      background: none; border: none; width: 100%; text-align: left;
+      transition: background 0.12s;
+    }
+    .filter-group-header:hover { background: var(--orange-light); }
+    .filter-group-label {
+      font-size: 12px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .filter-group-count {
+      background: var(--orange); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 1px 6px;
+      border-radius: 99px; display: none;
+    }
+    .filter-group-count.visible { display: inline-block; }
+    .filter-chevron {
+      font-size: 10px; color: var(--muted); transition: transform 0.2s;
+    }
+    .filter-group.open .filter-chevron { transform: rotate(180deg); }
+    .filter-group-body {
+      padding: 4px 16px 12px;
+      display: none;
+    }
+    .filter-group.open .filter-group-body { display: block; }
+
+    /* checkbox row */
+    .filter-option {
+      display: flex; align-items: center; gap: 9px;
+      padding: 5px 0; cursor: pointer;
+    }
+    .filter-option input[type="checkbox"] {
+      width: 15px; height: 15px; accent-color: var(--accent);
+      cursor: pointer; flex-shrink: 0; border-radius: 3px;
+    }
+    .filter-option-label {
+      font-size: 12px; color: var(--text-secondary);
+      flex: 1; cursor: pointer;
+    }
+    .filter-option-badge {
+      font-size: 10px; color: var(--muted);
+      background: var(--bg); padding: 1px 6px;
+      border-radius: 4px; font-weight: 600;
+    }
+    .filter-option:hover .filter-option-label { color: var(--orange); }
+
+    /* spice range in panel */
+    .panel-range-wrap { padding: 4px 0 8px; }
+    .panel-range-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; }
+    .panel-range-val { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+    .panel-range { width: 100%; accent-color: var(--red); }
+
+    /* people / age inputs in panel */
+    .panel-inputs { display: flex; gap: 8px; margin-top: 4px; }
+    .panel-input-wrap { flex: 1; }
+    .panel-input-wrap label { font-size: 10px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 3px; }
+    .panel-input-wrap input {
+      width: 100%; padding: 6px 8px; border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: 12px; outline: none;
+    }
+    .panel-input-wrap input:focus { border-color: var(--accent); }
+
+    /* ── COOKBOOK MAIN ── */
+    .cookbook-main { padding: 20px 24px; }
+    .cookbook-main-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .cookbook-results-label { font-size: 13px; color: var(--text-secondary); }
+    .cookbook-sort {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .cookbook-sort select {
+      font-size: 12px; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 4px 8px; outline: none;
+      background: var(--surface); color: var(--text);
+    }
+
+    .category-section { margin-bottom: 28px; }
+    .category-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .filter-chip {
+      padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); transition: all 0.15s;
+    }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ══════════════════════════════════
+       PAGE 3 — RECIPE DETAIL
+    ══════════════════════════════════ */
+    .recipe-detail { max-width: 800px; margin: 0 auto; padding: 32px; }
+    .recipe-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-secondary); cursor: pointer;
+      margin-bottom: 20px; background: none; border: none; font-weight: 500;
+    }
+    .recipe-back:hover { color: var(--accent); }
+    .recipe-detail-img {
+      width: 100%; height: 300px; border-radius: var(--radius-lg);
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #e86d10, #c83800, #3a8c1e);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .recipe-detail-header { margin-bottom: 20px; }
+    .recipe-detail-title { font-size: 26px; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+    .recipe-detail-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .recipe-detail-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 12px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px; text-align: center;
+    }
+    .stat-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stat-value { font-size: 16px; font-weight: 700; }
+    .stat-unit { font-size: 11px; color: var(--muted); }
+
+    .serving-adjuster {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 16px;
+      margin-bottom: 24px; width: fit-content;
+    }
+    .serving-adjuster span { font-size: 13px; font-weight: 600; }
+    .adj-btn {
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--bg); cursor: pointer; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text); transition: background 0.15s;
+    }
+    .adj-btn:hover { background: var(--yellow-light); border-color: var(--yellow-muted); }
+    .adj-count { font-size: 16px; font-weight: 700; min-width: 20px; text-align: center; }
+
+    .recipe-section-title {
+      font-size: 16px; font-weight: 700; margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 3px solid var(--orange-light);
+      color: var(--orange);
+    }
+    .ingredient-list { list-style: none; margin-bottom: 28px; }
+    .ingredient-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 0; border-bottom: 1px solid var(--bg);
+      font-size: 13px;
+    }
+    .ingredient-item:last-child { border-bottom: none; }
+    .ingredient-qty { color: var(--muted); font-weight: 600; font-size: 12px; }
+
+    .steps-list { list-style: none; margin-bottom: 28px; }
+    .step-item { display: flex; gap: 14px; margin-bottom: 16px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .step-text { font-size: 13px; line-height: 1.6; padding-top: 4px; }
+
+    .allergen-box {
+      background: var(--yellow-light); border: 2px solid var(--yellow-muted);
+      border-left: 4px solid var(--orange);
+      border-radius: var(--radius); padding: 14px 16px;
+      font-size: 12px; color: #7a3800; margin-bottom: 24px;
+    }
+    .allergen-box strong { display: block; margin-bottom: 4px; color: var(--orange); }
+
+    /* ══════════════════════════════════
+       PAGE 4 — PROFILE SETUP
+    ══════════════════════════════════ */
+    .profile-page { max-width: 640px; margin: 0 auto; padding: 32px; }
+    .profile-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .profile-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+
+    .form-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+    }
+    .form-section-title {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+    }
+    .form-section-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+    .chip-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 7px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); transition: all 0.15s; user-select: none;
+    }
+    .chip:hover { border-color: var(--orange); color: var(--orange); }
+    .chip.selected { background: var(--orange-light); color: var(--orange); border-color: var(--orange-muted); }
+
+    .spice-slider-row { display: flex; align-items: center; gap: 16px; }
+    .spice-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
+    input[type="range"] {
+      flex: 1; accent-color: var(--red); height: 4px;
+    }
+    .spice-value {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--red));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; flex-shrink: 0;
+    }
+
+    .num-inputs { display: flex; gap: 16px; }
+    .num-field { flex: 1; }
+    .num-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .num-field input {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .num-field input:focus { border-color: var(--orange); }
+
+    .profile-preview {
+      background: var(--yellow-light); border: 2px solid var(--yellow-muted);
+      border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 20px;
+    }
+    .preview-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--orange); margin-bottom: 8px; }
+    .preview-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .preview-text strong { color: var(--red); }
+
+    .profile-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ══════════════════════════════════
+       ANNOTATION LAYER
+    ══════════════════════════════════ */
+    .annotation {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #f59e0b; color: #fff;
+      font-size: 11px; font-weight: 700;
+      cursor: help; flex-shrink: 0;
+    }
+    .annotation-block {
+      background: var(--yellow-light); border: 1px solid var(--yellow-muted);
+      border-radius: var(--radius); padding: 8px 12px;
+      font-size: 11px; color: #7a4400; margin-top: 8px;
+      line-height: 1.5;
+    }
+    .annotation-block strong { color: var(--red); }
+
+    /* ══════════════════════════════════
+       PAGE 5 — FRIDGE
+    ══════════════════════════════════ */
+    .fridge-page { max-width: 720px; margin: 0 auto; padding: 32px; }
+
+    .fridge-header {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px;
+    }
+    .fridge-header-icon {
+      font-size: 40px; line-height: 1; flex-shrink: 0;
+    }
+    .fridge-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .fridge-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    .fridge-input-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+    }
+    .fridge-section-step {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--orange); margin-bottom: 4px;
+    }
+    .fridge-input-label { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .fridge-input-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
+    .fridge-input-row { display: flex; gap: 8px; margin-bottom: 6px; }
+    .fridge-input {
+      flex: 1; padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 13px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .fridge-input:focus { border-color: var(--orange); }
+    .fridge-hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+
+    .fridge-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; min-height: 10px; }
+    .fridge-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--orange-light); color: var(--orange);
+      border: 1.5px solid var(--orange-muted);
+      padding: 5px 10px; border-radius: 99px; font-size: 12px; font-weight: 600;
+    }
+    .fridge-chip-remove {
+      background: none; border: none; color: var(--orange);
+      cursor: pointer; font-size: 11px; padding: 0; line-height: 1;
+    }
+
+    .fridge-suggestions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .fridge-suggestions-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-secondary);
+      width: 100%; margin-bottom: 2px;
+    }
+    .suggestion-chip {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 5px 12px; border-radius: 99px; font-size: 12px;
+      color: var(--text-secondary); cursor: pointer;
+      transition: all 0.12s;
+    }
+    .suggestion-chip:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+
+    /* option chips — single-select (sauce / cuisine) */
+    .fridge-option-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .fridge-option-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      padding: 8px 14px; border-radius: var(--radius-lg);
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .fridge-option-chip:hover { border-color: var(--orange-muted); color: var(--orange); }
+    .fridge-option-chip.selected { background: var(--orange-light); border: 2px solid var(--orange); color: var(--orange); }
+    .option-chip-emoji { font-size: 16px; }
+    .fridge-optional { font-size: 11px; font-weight: 400; color: var(--muted); }
+
+    /* generate row */
+    .fridge-generate-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 20px;
+    }
+    .fridge-count-msg { font-size: 13px; color: var(--muted); }
+    .fridge-count-msg.ready { color: var(--accent); font-weight: 600; }
+
+    /* result card */
+    .fridge-result { margin-top: 4px; }
+    .fridge-result-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-md);
+      display: flex;
+    }
+    .fridge-result-img {
+      width: 180px; min-height: 180px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f5e0c0, #e8c898);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+    }
+    .fridge-result-body { padding: 20px; flex: 1; }
+    .fridge-result-eyebrow {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--orange); margin-bottom: 6px;
+    }
+    .fridge-result-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .fridge-result-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; }
+    .fridge-matched { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+    .fridge-matched-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-right: 2px; }
+    .fridge-match-badge {
+      background: var(--accent-light); color: #1e6a10;
+      border: 1px solid var(--accent-muted);
+      padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700;
+    }
+    .fridge-result-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+    .fridge-result-actions { display: flex; gap: 8px; }
+
+    /* ══════════════════════════════════
+       FOOTER WIREFRAME NOTE
+    ══════════════════════════════════ */
+    .wf-note {
+      text-align: center; padding: 20px; font-size: 11px;
+      color: var(--muted); border-top: 1px solid var(--border);
+      background: var(--surface); margin-top: 40px;
+    }
+    .wf-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--orange), var(--red));
+      color: #fff;
+      padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 10px;
+      margin-right: 6px; letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <div class="nav-logo">🥦 Friday Night <span>Veggie Wins</span></div>
+  <div class="nav-links">
+    <button class="active" onclick="showPage('home', this)">Home</button>
+    <button onclick="showPage('cookbook', this)">Cookbook</button>
+    <button onclick="showPage('detail', this)">Recipe Detail</button>
+    <button onclick="showPage('fridge', this)">🧊 Fridge</button>
+    <button onclick="showPage('profile', this)">My Profile</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-outline btn-sm" onclick="showPage('profile', document.querySelector('.nav-links button:last-child'))">
+      ⚙ Profile
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="showPage('home', document.querySelector('.nav-links button:first-child'))">
+      + Generate Recipe
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     PAGE 1 — HOMEPAGE
+══════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- Hero: Today's Recipe -->
+  <div class="home-hero">
+    <div>
+      <div class="hero-eyebrow">Today's Recipe · Friday, Apr 24</div>
+      <h1 class="hero-title">Palak Paneer<br>with Jeera Rice</h1>
+      <p class="hero-sub">Creamy spinach curry with fresh cottage cheese, served with cumin-scented basmati. Ready in 35 minutes.</p>
+      <div class="hero-meta">
+        <span class="hero-tag">🍛 Indian</span>
+        <span class="hero-tag">🥗 Vegetarian</span>
+        <span class="hero-tag">💪 Protein-Rich</span>
+        <span class="hero-tag">🌶 Spice 3/5</span>
+        <span class="hero-tag">👥 4 People</span>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-white" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">View Full Recipe</button>
+        <button class="btn btn-ghost">📧 Email Me This</button>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-img">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          <path d="M8 12s1.5-2 4-2 4 2 4 2"/>
+          <circle cx="9" cy="9" r="1.5" fill="rgba(255,255,255,0.5)"/>
+          <circle cx="15" cy="9" r="1.5" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div class="hero-card-body">
+        <div class="hero-card-label">Today's Pick · Auto-generated at 5:00 PM</div>
+        <div class="hero-card-title">Palak Paneer with Jeera Rice</div>
+        <div class="hero-card-tags">
+          <span class="hero-card-tag">35 min</span>
+          <span class="hero-card-tag">Iron-rich</span>
+          <span class="hero-card-tag">Vitamin-rich</span>
+        </div>
+        <div class="hero-card-footer">
+          <span>4 servings</span>
+          <span>⭐ Age 3+</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation-block" style="margin: 16px 32px 0; max-width: 600px;">
+    <strong>FR-2.1 · US-08</strong> — Hero always shows today's auto-generated recipe. Generated at 5 PM and emailed simultaneously. CTA links to full Recipe Detail view.
+  </div>
+
+  <!-- Recent Recipes -->
+  <div class="home-section">
+    <div class="section-header">
+      <h2 class="section-title">This Week's Recipes</h2>
+      <button class="section-link" onclick="showPage('cookbook', document.querySelectorAll('.nav-links button')[1])">View all in Cookbook →</button>
+    </div>
+    <div class="recipe-grid">
+      <!-- Card 1 -->
+      <div class="recipe-card" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">
+        <div class="img-placeholder recipe-card-img">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12s1.5-2 4-2 4 2 4 2"/></svg>
+        </div>
+        <div class="recipe-card-body">
+          <div class="recipe-card-title">Grilled Chicken Tikka Salad</div>
+          <div class="recipe-card-tags">
+            <span class="tag tag-cuisine">Indian</span>
+            <span class="tag tag-nutrition">Protein-rich</span>
+          </div>
+          <div class="recipe-card-meta">
+            <span>25 min · 4 serves</span>
+            <div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="recipe-card" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">
+        <div class="img-placeholder recipe-card-img">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12s1.5-2 4-2 4 2 4 2"/></svg>
+        </div>
+        <div class="recipe-card-body">
+          <div class="recipe-card-title">Pasta Primavera (Vegan)</div>
+          <div class="recipe-card-tags">
+            <span class="tag tag-cuisine">Italian</span>
+            <span class="tag tag-diet">Vegan</span>
+          </div>
+          <div class="recipe-card-meta">
+            <span>30 min · 4 serves</span>
+            <div class="spice"><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="recipe-card" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">
+        <div class="img-placeholder recipe-card-img">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12s1.5-2 4-2 4 2 4 2"/></svg>
+        </div>
+        <div class="recipe-card-body">
+          <div class="recipe-card-title">Black Bean Tacos</div>
+          <div class="recipe-card-tags">
+            <span class="tag tag-cuisine">Mexican</span>
+            <span class="tag tag-nutrition">Iron-rich</span>
+          </div>
+          <div class="recipe-card-meta">
+            <span>20 min · 4 serves</span>
+            <div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Card 4 -->
+      <div class="recipe-card" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">
+        <div class="img-placeholder recipe-card-img">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12s1.5-2 4-2 4 2 4 2"/></svg>
+        </div>
+        <div class="recipe-card-body">
+          <div class="recipe-card-title">Greek Lemon Chicken Bowl</div>
+          <div class="recipe-card-tags">
+            <span class="tag tag-cuisine">Mediterranean</span>
+            <span class="tag tag-diet">Diabetic-friendly</span>
+          </div>
+          <div class="recipe-card-meta">
+            <span>40 min · 4 serves</span>
+            <div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- On-Demand -->
+  <div class="home-section" style="display:flex; align-items:center; justify-content:space-between; background: linear-gradient(90deg, var(--yellow-light), var(--orange-light)); border-top: 2px solid var(--yellow-muted); padding: 20px 32px;">
+    <div>
+      <div style="font-size:15px; font-weight:700; margin-bottom:4px;">Need a recipe right now?</div>
+      <div style="font-size:12px; color:var(--muted);">Generate a new recipe on demand — outside the 5 PM daily schedule.</div>
+    </div>
+    <button class="btn btn-primary">⚡ Generate Now</button>
+  </div>
+
+  <div class="annotation-block" style="margin: 0 32px 32px;">
+    <strong>US-09 · FR-2.2</strong> — On-demand generation triggers immediately. Result is saved to cookbook and emailed.
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 2 — COOKBOOK
+══════════════════════════════════ -->
+<div id="page-cookbook" class="page">
+
+  <!-- Top bar: title + search -->
+  <div class="cookbook-header">
+    <div class="cookbook-title-row">
+      <div>
+        <h1 class="cookbook-title">My Cookbook</h1>
+        <div class="cookbook-count">28 recipes · Last added today</div>
+      </div>
+      <button class="btn btn-primary">+ Generate Recipe</button>
+    </div>
+    <div class="search-bar">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search by recipe name, ingredient, tag…" oninput="updateResultsLabel()" />
+    </div>
+  </div>
+
+  <!-- Active filter pills strip -->
+  <div class="active-filters-strip hidden" id="active-strip">
+    <span style="font-size:11px; font-weight:700; color:var(--accent);">Active filters:</span>
+    <span id="active-pills"></span>
+    <button class="clear-all-btn" onclick="clearAllFilters()">Clear all</button>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="cookbook-layout">
+
+    <!-- ── LEFT FILTER PANEL ── -->
+    <aside class="filter-panel">
+      <div class="filter-panel-header">
+        <span class="filter-panel-title">Filters</span>
+        <button class="filter-clear-all" onclick="clearAllFilters()">Clear all</button>
+      </div>
+
+      <!-- Cuisine -->
+      <div class="filter-group open" id="fg-cuisine">
+        <button class="filter-group-header" onclick="toggleGroup('fg-cuisine')">
+          <span class="filter-group-label">
+            🍽 Cuisine
+            <span class="filter-group-count" id="cnt-cuisine">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'cuisine')" /><span class="filter-option-label">🍛 Indian</span><span class="filter-option-badge">12</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'cuisine')" /><span class="filter-option-label">🍝 Italian</span><span class="filter-option-badge">7</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'cuisine')" /><span class="filter-option-label">🌮 Mexican</span><span class="filter-option-badge">5</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'cuisine')" /><span class="filter-option-label">🫒 Mediterranean</span><span class="filter-option-badge">4</span></label>
+        </div>
+      </div>
+
+      <!-- Dietary Restrictions -->
+      <div class="filter-group open" id="fg-diet">
+        <button class="filter-group-header" onclick="toggleGroup('fg-diet')">
+          <span class="filter-group-label">
+            🥦 Dietary Restrictions
+            <span class="filter-group-count" id="cnt-diet">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'diet')" /><span class="filter-option-label">Vegetarian</span><span class="filter-option-badge">18</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'diet')" /><span class="filter-option-label">Vegan</span><span class="filter-option-badge">9</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'diet')" /><span class="filter-option-label">Chicken OK</span><span class="filter-option-badge">6</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'diet')" /><span class="filter-option-label">Seafood OK</span><span class="filter-option-badge">3</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'diet')" /><span class="filter-option-label">Any Meat OK</span><span class="filter-option-badge">4</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'diet')" /><span class="filter-option-label">🩺 Diabetic-friendly</span><span class="filter-option-badge">11</span></label>
+        </div>
+      </div>
+
+      <!-- Nutrition -->
+      <div class="filter-group open" id="fg-nutrition">
+        <button class="filter-group-header" onclick="toggleGroup('fg-nutrition')">
+          <span class="filter-group-label">
+            💊 Nutrition
+            <span class="filter-group-count" id="cnt-nutrition">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'nutrition')" /><span class="filter-option-label">💪 Protein-rich</span><span class="filter-option-badge">10</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'nutrition')" /><span class="filter-option-label">🩸 Iron-rich</span><span class="filter-option-badge">8</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'nutrition')" /><span class="filter-option-label">🌿 Vitamin-rich</span><span class="filter-option-badge">6</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'nutrition')" /><span class="filter-option-label">🚫 No-carb</span><span class="filter-option-badge">4</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'nutrition')" /><span class="filter-option-label">⚖️ Balanced</span><span class="filter-option-badge">14</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'nutrition')" /><span class="filter-option-label">🍬 Sugar-free</span><span class="filter-option-badge">7</span></label>
+        </div>
+      </div>
+
+      <!-- Spice Level -->
+      <div class="filter-group open" id="fg-spice">
+        <button class="filter-group-header" onclick="toggleGroup('fg-spice')">
+          <span class="filter-group-label">
+            🌶 Spice Level
+            <span class="filter-group-count" id="cnt-spice">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <div class="panel-range-wrap">
+            <div class="panel-range-val">Up to: <span id="panel-spice-val">5</span> / 5</div>
+            <input type="range" class="panel-range" min="1" max="5" value="5"
+              oninput="document.getElementById('panel-spice-val').textContent=this.value; filterChanged(this,'spice')" />
+            <div class="panel-range-labels">
+              <span>1 Mild</span><span>2</span><span>3 Med</span><span>4</span><span>5 Hot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Number of People -->
+      <div class="filter-group open" id="fg-people">
+        <button class="filter-group-header" onclick="toggleGroup('fg-people')">
+          <span class="filter-group-label">
+            👥 Servings
+            <span class="filter-group-count" id="cnt-people">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'people')" /><span class="filter-option-label">1–2 people</span><span class="filter-option-badge">5</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'people')" /><span class="filter-option-label">3–4 people</span><span class="filter-option-badge">14</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'people')" /><span class="filter-option-label">5–6 people</span><span class="filter-option-badge">6</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'people')" /><span class="filter-option-label">7–10 people</span><span class="filter-option-badge">3</span></label>
+        </div>
+      </div>
+
+      <!-- Age of Eaters -->
+      <div class="filter-group open" id="fg-age">
+        <button class="filter-group-header" onclick="toggleGroup('fg-age')">
+          <span class="filter-group-label">
+            👶 Age-Safe For
+            <span class="filter-group-count" id="cnt-age">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'age')" /><span class="filter-option-label">Toddler (2–4 yrs)</span><span class="filter-option-badge">8</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'age')" /><span class="filter-option-label">Kids (5–10 yrs)</span><span class="filter-option-badge">15</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'age')" /><span class="filter-option-label">Teens (11–17 yrs)</span><span class="filter-option-badge">22</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'age')" /><span class="filter-option-label">Adults (18+ yrs)</span><span class="filter-option-badge">28</span></label>
+        </div>
+      </div>
+
+      <!-- Cook Time -->
+      <div class="filter-group" id="fg-time">
+        <button class="filter-group-header" onclick="toggleGroup('fg-time')">
+          <span class="filter-group-label">
+            ⏱ Cook Time
+            <span class="filter-group-count" id="cnt-time">0</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'time')" /><span class="filter-option-label">Under 20 min</span><span class="filter-option-badge">6</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'time')" /><span class="filter-option-label">20–30 min</span><span class="filter-option-badge">11</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'time')" /><span class="filter-option-label">30–45 min</span><span class="filter-option-badge">8</span></label>
+          <label class="filter-option"><input type="checkbox" onchange="filterChanged(this,'time')" /><span class="filter-option-label">Over 45 min</span><span class="filter-option-badge">3</span></label>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="cookbook-main">
+
+      <div class="cookbook-main-header">
+        <div class="cookbook-results-label" id="results-label">Showing <strong>28 recipes</strong></div>
+        <div class="cookbook-sort">
+          Sort by:
+          <select>
+            <option>Newest first</option>
+            <option>Oldest first</option>
+            <option>Cook time (low–high)</option>
+            <option>Cuisine A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="annotation-block" style="margin-bottom: 16px;">
+        <strong>FR-3.3 · US-16</strong> — Left panel filters are cumulative. Search bar filters by free text. Active selections shown as removable pills in the strip above. Results count updates live.
+      </div>
+
+      <!-- Indian Section -->
+      <div class="category-section">
+        <div class="section-header">
+          <h2 class="section-title">🍛 Indian</h2>
+          <button class="section-link">Show all 12 →</button>
+        </div>
+        <div class="category-row">
+          <div class="recipe-card" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Palak Paneer with Jeera Rice</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegetarian</span><span class="tag tag-nutrition">Iron-rich</span></div>
+              <div class="recipe-card-meta"><span>Today · 35 min</span>
+                <div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Dal Tadka with Roti</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegan</span><span class="tag tag-nutrition">Protein-rich</span></div>
+              <div class="recipe-card-meta"><span>Apr 23 · 30 min</span></div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Chana Masala</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegan</span><span class="tag tag-nutrition">Iron-rich</span></div>
+              <div class="recipe-card-meta"><span>Apr 22 · 45 min</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mediterranean Section -->
+      <div class="category-section">
+        <div class="section-header">
+          <h2 class="section-title">🫒 Mediterranean</h2>
+          <button class="section-link">Show all 8 →</button>
+        </div>
+        <div class="category-row">
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Greek Lemon Chicken Bowl</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Diabetic-friendly</span></div>
+              <div class="recipe-card-meta"><span>Apr 20 · 40 min</span></div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Falafel Pita with Tzatziki</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegetarian</span><span class="tag tag-nutrition">Protein-rich</span></div>
+              <div class="recipe-card-meta"><span>Apr 19 · 35 min</span></div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Shakshuka</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegetarian</span><span class="tag tag-nutrition">Iron-rich</span></div>
+              <div class="recipe-card-meta"><span>Apr 18 · 25 min</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mexican Section -->
+      <div class="category-section">
+        <div class="section-header">
+          <h2 class="section-title">🌮 Mexican</h2>
+          <button class="section-link">Show all 5 →</button>
+        </div>
+        <div class="category-row">
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Black Bean Tacos</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegan</span><span class="tag tag-nutrition">Iron-rich</span></div>
+              <div class="recipe-card-meta"><span>Apr 17 · 20 min</span>
+                <div class="spice"><div class="spice-dot filled"></div><div class="spice-dot filled"></div><div class="spice-dot"></div><div class="spice-dot"></div><div class="spice-dot"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Black Bean Enchiladas</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegetarian</span><span class="tag tag-nutrition">Protein-rich</span></div>
+              <div class="recipe-card-meta"><span>Apr 16 · 45 min</span></div>
+            </div>
+          </div>
+          <div class="recipe-card">
+            <div class="img-placeholder recipe-card-img"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/></svg></div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">Veggie Burrito Bowl</div>
+              <div class="recipe-card-tags"><span class="tag tag-diet">Vegan</span><span class="tag tag-nutrition">Balanced</span></div>
+              <div class="recipe-card-meta"><span>Apr 15 · 30 min</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cookbook-main -->
+  </div><!-- /cookbook-layout -->
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 3 — RECIPE DETAIL
+══════════════════════════════════ -->
+<div id="page-detail" class="page">
+  <div class="recipe-detail">
+    <button class="recipe-back" onclick="showPage('cookbook', document.querySelectorAll('.nav-links button')[1])">
+      ← Back to Cookbook
+    </button>
+
+    <div class="recipe-detail-img">
+      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(45,106,45,0.4)" stroke-width="1"><circle cx="12" cy="12" r="10"/><path d="M8 12s1.5-2 4-2 4 2 4 2"/></svg>
+    </div>
+
+    <div class="recipe-detail-header">
+      <h1 class="recipe-detail-title">Palak Paneer with Jeera Rice</h1>
+      <div class="recipe-detail-tags">
+        <span class="tag tag-cuisine">🍛 Indian</span>
+        <span class="tag tag-diet">🥗 Vegetarian</span>
+        <span class="tag tag-diet">🩺 Diabetic-friendly</span>
+        <span class="tag tag-nutrition">💪 Protein-rich</span>
+        <span class="tag tag-nutrition">🩸 Iron-rich</span>
+        <span class="tag tag-spice">🌶 Spice 3/5</span>
+      </div>
+    </div>
+
+    <div class="recipe-detail-stats">
+      <div class="stat-card">
+        <div class="stat-label">Prep</div>
+        <div class="stat-value">10 <span class="stat-unit">min</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cook</div>
+        <div class="stat-value">25 <span class="stat-unit">min</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Servings</div>
+        <div class="stat-value">4 <span class="stat-unit">people</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Age Safe</div>
+        <div class="stat-value">3+ <span class="stat-unit">years</span></div>
+      </div>
+    </div>
+
+    <!-- Serving adjuster -->
+    <div class="serving-adjuster">
+      <span>Adjust servings:</span>
+      <button class="adj-btn" onclick="adjustServings(-1)">−</button>
+      <div class="adj-count" id="serving-count">4</div>
+      <button class="adj-btn" onclick="adjustServings(1)">+</button>
+      <span style="font-size:12px; color:var(--muted);">Ingredients scale automatically</span>
+    </div>
+
+    <div class="annotation-block" style="margin-bottom: 20px;">
+      <strong>FR-2.4 · US-11</strong> — Serving adjuster rescales all ingredient quantities in real time. Base is the household's configured serving count.
+    </div>
+
+    <!-- Allergen note -->
+    <div class="allergen-box">
+      <strong>⚠ Age Note (youngest eater: 3 years)</strong>
+      Paneer should be cut into small, soft cubes (1 cm). Reduce whole spices in tempering. Ensure rice is fully cooked and slightly soft. No whole peppercorns in the child's portion.
+    </div>
+
+    <!-- Ingredients -->
+    <div class="recipe-section-title">Ingredients</div>
+    <ul class="ingredient-list">
+      <li class="ingredient-item"><span>Fresh spinach (palak)</span><span class="ingredient-qty">4 cups</span></li>
+      <li class="ingredient-item"><span>Paneer, cubed</span><span class="ingredient-qty">250 g</span></li>
+      <li class="ingredient-item"><span>Onion, finely chopped</span><span class="ingredient-qty">1 large</span></li>
+      <li class="ingredient-item"><span>Garlic cloves, minced</span><span class="ingredient-qty">4 cloves</span></li>
+      <li class="ingredient-item"><span>Ginger, grated</span><span class="ingredient-qty">1 tsp</span></li>
+      <li class="ingredient-item"><span>Tomatoes, chopped</span><span class="ingredient-qty">2 medium</span></li>
+      <li class="ingredient-item"><span>Cumin seeds (jeera)</span><span class="ingredient-qty">1 tsp</span></li>
+      <li class="ingredient-item"><span>Garam masala</span><span class="ingredient-qty">½ tsp</span></li>
+      <li class="ingredient-item"><span>Heavy cream</span><span class="ingredient-qty">3 tbsp</span></li>
+      <li class="ingredient-item"><span>Basmati rice</span><span class="ingredient-qty">1½ cups</span></li>
+      <li class="ingredient-item"><span>Oil</span><span class="ingredient-qty">2 tbsp</span></li>
+      <li class="ingredient-item"><span>Salt</span><span class="ingredient-qty">to taste</span></li>
+    </ul>
+
+    <!-- Steps -->
+    <div class="recipe-section-title">Instructions</div>
+    <ol class="steps-list">
+      <li class="step-item"><div class="step-num">1</div><div class="step-text">Blanch spinach in boiling water for 2 minutes, then transfer to ice water. Drain and blend into a smooth purée. Set aside.</div></li>
+      <li class="step-item"><div class="step-num">2</div><div class="step-text">Heat oil in a pan over medium heat. Add cumin seeds and let them splutter. Add onions and sauté until golden, about 7 minutes.</div></li>
+      <li class="step-item"><div class="step-num">3</div><div class="step-text">Add garlic and ginger. Sauté for 1 minute until fragrant. Add tomatoes and cook until soft and oil separates, about 5 minutes.</div></li>
+      <li class="step-item"><div class="step-num">4</div><div class="step-text">Add the spinach purée and mix well. Season with garam masala and salt. Simmer for 5 minutes.</div></li>
+      <li class="step-item"><div class="step-num">5</div><div class="step-text">Add paneer cubes and cream. Stir gently and simmer for 3–4 minutes. Do not over-stir or paneer will break.</div></li>
+      <li class="step-item"><div class="step-num">6</div><div class="step-text">For jeera rice: rinse basmati, cook with 1:1.75 water ratio and ½ tsp cumin seeds until fluffy. Fluff with a fork.</div></li>
+      <li class="step-item"><div class="step-num">7</div><div class="step-text">Serve palak paneer over jeera rice. Garnish with a swirl of cream and a pinch of garam masala.</div></li>
+    </ol>
+
+    <div style="display:flex; gap:10px; margin-top: 8px;">
+      <button class="btn btn-primary">📧 Email This Recipe</button>
+      <button class="btn btn-outline">📋 Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 4 — PROFILE SETUP
+══════════════════════════════════ -->
+<div id="page-profile" class="page">
+  <div class="profile-page">
+    <h1 class="profile-title">Household Profile</h1>
+    <p class="profile-sub">Set your preferences once. Every recipe will match your household's needs automatically.</p>
+
+    <!-- Dietary Restrictions -->
+    <div class="form-section">
+      <div class="form-section-title">🥦 Dietary Restrictions</div>
+      <div class="form-section-sub">Select all that apply to your household</div>
+      <div class="chip-group">
+        <div class="chip selected" onclick="toggleChip(this)">Vegetarian</div>
+        <div class="chip" onclick="toggleChip(this)">Vegan</div>
+        <div class="chip selected" onclick="toggleChip(this)">Chicken OK</div>
+        <div class="chip" onclick="toggleChip(this)">Seafood OK</div>
+        <div class="chip" onclick="toggleChip(this)">Any Meat OK</div>
+        <div class="chip selected" onclick="toggleChip(this)">Diabetic-friendly</div>
+      </div>
+    </div>
+
+    <!-- Spice Level -->
+    <div class="form-section">
+      <div class="form-section-title">🌶 Spice Level</div>
+      <div class="form-section-sub">How much heat can your household handle?</div>
+      <div class="spice-slider-row">
+        <input type="range" min="1" max="5" value="3" id="spice-slider" oninput="updateSpice(this.value)" />
+        <div class="spice-value" id="spice-val">3</div>
+      </div>
+      <div class="spice-labels">
+        <span>1 — Very Mild</span><span>2 — Mild</span><span>3 — Medium</span><span>4 — Hot</span><span>5 — Very Hot</span>
+      </div>
+    </div>
+
+    <!-- Number of people + Ages -->
+    <div class="form-section">
+      <div class="form-section-title">👥 Household Size & Ages</div>
+      <div class="form-section-sub">Ingredients scale to your serving count; recipes adjust for the youngest eater</div>
+      <div class="num-inputs">
+        <div class="num-field">
+          <label>Number of people (1–10)</label>
+          <input type="number" min="1" max="10" value="4" />
+        </div>
+        <div class="num-field">
+          <label>Youngest eater's age (years)</label>
+          <input type="number" min="2" max="99" value="3" />
+        </div>
+        <div class="num-field">
+          <label>Oldest eater's age (years)</label>
+          <input type="number" min="2" max="99" value="40" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Nutrition Requirements -->
+    <div class="form-section">
+      <div class="form-section-title">💊 Nutrition Requirements</div>
+      <div class="form-section-sub">Recipes will carry these tags and prioritize these goals</div>
+      <div class="chip-group">
+        <div class="chip selected" onclick="toggleChip(this)">Protein-rich</div>
+        <div class="chip selected" onclick="toggleChip(this)">Iron-rich</div>
+        <div class="chip" onclick="toggleChip(this)">Vitamin-rich</div>
+        <div class="chip" onclick="toggleChip(this)">No-carb</div>
+        <div class="chip selected" onclick="toggleChip(this)">Balanced</div>
+        <div class="chip selected" onclick="toggleChip(this)">Sugar-free</div>
+      </div>
+    </div>
+
+    <!-- Cuisines -->
+    <div class="form-section">
+      <div class="form-section-title">🍽 Preferred Cuisines</div>
+      <div class="form-section-sub">Recipes will rotate across your selected cuisines</div>
+      <div class="chip-group">
+        <div class="chip selected" onclick="toggleChip(this)">🍛 Indian</div>
+        <div class="chip selected" onclick="toggleChip(this)">🍝 Italian</div>
+        <div class="chip selected" onclick="toggleChip(this)">🌮 Mexican</div>
+        <div class="chip selected" onclick="toggleChip(this)">🫒 Mediterranean</div>
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-section">
+      <div class="form-section-title">📧 Email Notifications</div>
+      <div class="form-section-sub">Receive each new recipe in your inbox at 5 PM daily</div>
+      <div class="num-inputs" style="gap:10px;">
+        <div class="num-field" style="flex:2;">
+          <label>Email address</label>
+          <input type="email" value="test@gmail.com" />
+        </div>
+        <div class="num-field" style="flex:1;">
+          <label>Timezone</label>
+          <input type="text" value="America/New_York" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div class="profile-preview">
+      <div class="preview-label">Live Profile Preview</div>
+      <div class="preview-text">
+        Generating recipes for <strong>4 people</strong> (ages 3–40),
+        <strong>vegetarian + diabetic-friendly</strong>,
+        spice level <strong>3/5</strong>,
+        cuisines: <strong>Indian, Italian, Mexican, Mediterranean</strong>,
+        nutrition focus: <strong>protein-rich, iron-rich, balanced, sugar-free</strong>.
+        Delivered daily at <strong>5 PM ET</strong>.
+      </div>
+    </div>
+
+    <div class="annotation-block" style="margin-bottom:20px;">
+      <strong>FR-1.1–1.8 · US-01–07</strong> — All profile fields are editable at any time. Changes apply to the next generation. Live preview confirms the active configuration before saving.
+    </div>
+
+    <div class="profile-actions">
+      <button class="btn btn-outline">Cancel</button>
+      <button class="btn btn-primary">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 5 — WHAT'S IN THE FRIDGE?
+══════════════════════════════════ -->
+<div id="page-fridge" class="page">
+  <div class="fridge-page">
+
+    <div class="fridge-header">
+      <div class="fridge-header-icon">🧊</div>
+      <div>
+        <h1 class="fridge-title">What's in the Fridge?</h1>
+        <p class="fridge-sub">Add the fresh vegetables, proteins, and sauces you have on hand — we'll generate a recipe using only what you've got, no trips to the store needed.</p>
+      </div>
+    </div>
+
+    <!-- Step 1: Ingredients -->
+    <div class="fridge-input-section">
+      <div class="fridge-section-step">Step 1</div>
+      <div class="fridge-input-label">Fresh ingredients in your fridge</div>
+      <div class="fridge-input-hint">Vegetables, dairy, proteins, condiments. Do not add grains — add those only if you actually have them.</div>
+
+      <div class="fridge-input-row">
+        <input type="text" class="fridge-input" id="wf-ingredient-input" placeholder="e.g. spinach, paneer, cherry tomatoes…" />
+        <button class="btn btn-primary" onclick="wfAddIngredient(document.getElementById('wf-ingredient-input').value)">+ Add</button>
+      </div>
+      <div class="fridge-hint">Press Enter or click Add · one item at a time</div>
+
+      <!-- Sample chips (pre-populated for wireframe) -->
+      <div class="fridge-chips" id="wf-chips">
+        <span class="fridge-chip">Spinach <button class="fridge-chip-remove" onclick="this.parentElement.remove()">✕</button></span>
+        <span class="fridge-chip">Paneer <button class="fridge-chip-remove" onclick="this.parentElement.remove()">✕</button></span>
+        <span class="fridge-chip">Cherry Tomatoes <button class="fridge-chip-remove" onclick="this.parentElement.remove()">✕</button></span>
+        <span class="fridge-chip">Garlic <button class="fridge-chip-remove" onclick="this.parentElement.remove()">✕</button></span>
+      </div>
+
+      <div class="fridge-suggestions">
+        <span class="fridge-suggestions-label">Vegetables</span>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Kale')">Kale</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Bell Pepper')">Bell Pepper</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Zucchini')">Zucchini</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Broccoli')">Broccoli</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Mushrooms')">Mushrooms</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Cauliflower')">Cauliflower</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Eggplant')">Eggplant</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Sweet Potato')">Sweet Potato</button>
+      </div>
+
+      <div class="fridge-suggestions" style="margin-top:10px;">
+        <span class="fridge-suggestions-label">Proteins &amp; Dairy</span>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Tofu')">Tofu</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Eggs')">Eggs</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Feta')">Feta</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Greek Yogurt')">Greek Yogurt</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Chickpeas')">Chickpeas</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Kidney Beans')">Kidney Beans</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Lentils')">Lentils</button>
+      </div>
+
+      <div class="fridge-suggestions" style="margin-top:10px;">
+        <span class="fridge-suggestions-label">Aromatics &amp; Extras</span>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Onion')">Onion</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Ginger')">Ginger</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Lemon')">Lemon</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Lime')">Lime</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Chilli')">Chilli</button>
+        <button class="suggestion-chip" onclick="wfAddChip(this, 'Avocado')">Avocado</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Sauce -->
+    <div class="fridge-input-section">
+      <div class="fridge-section-step">Step 2</div>
+      <div class="fridge-input-label">Sauce or cooking base <span class="fridge-optional">(optional)</span></div>
+      <div class="fridge-input-hint">Select the sauce or liquid base you want to cook with. Pick one — or leave blank to let us decide.</div>
+      <div class="fridge-option-chips" id="wf-sauce-chips">
+        <button class="fridge-option-chip selected" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🍅</span>Tomato-based
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🥥</span>Coconut Milk
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🥛</span>Cream / Butter
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🫒</span>Olive Oil
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🍲</span>Broth / Stock
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🥄</span>Yogurt-based
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-sauce-chips')">
+          <span class="option-chip-emoji">🍳</span>Dry / No Sauce
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Cuisine -->
+    <div class="fridge-input-section">
+      <div class="fridge-section-step">Step 3</div>
+      <div class="fridge-input-label">Cuisine style <span class="fridge-optional">(optional)</span></div>
+      <div class="fridge-input-hint">Narrow down the recipe style. Leave blank to match any cuisine.</div>
+      <div class="fridge-option-chips" id="wf-cuisine-chips">
+        <button class="fridge-option-chip selected" onclick="wfSelectSingle(this, 'wf-cuisine-chips')">
+          <span class="option-chip-emoji">🍛</span>Indian
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-cuisine-chips')">
+          <span class="option-chip-emoji">🍝</span>Italian
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-cuisine-chips')">
+          <span class="option-chip-emoji">🌮</span>Mexican
+        </button>
+        <button class="fridge-option-chip" onclick="wfSelectSingle(this, 'wf-cuisine-chips')">
+          <span class="option-chip-emoji">🫒</span>Mediterranean
+        </button>
+      </div>
+    </div>
+
+    <!-- Generate -->
+    <div class="fridge-generate-row">
+      <div class="fridge-count-msg ready">4 ingredients added — ready to generate!</div>
+      <button class="btn btn-primary btn-lg" onclick="wfShowResult()">⚡ Generate Recipe from Fridge</button>
+    </div>
+
+    <div class="annotation-block" style="margin-bottom: 20px;">
+      <strong>FR-5.1–5.5 · US-20–22</strong> — Ingredients are chip-toggled. Sauce and cuisine chips are single-select (click again to deselect). Generate is disabled until at least 1 ingredient is added. Grains are never pre-populated as suggestions (FR-5.3).
+    </div>
+
+    <!-- Result card (shown after generate) -->
+    <div id="wf-result" class="fridge-result">
+      <div class="fridge-result-card">
+        <div class="fridge-result-img">🍛</div>
+        <div class="fridge-result-body">
+          <div class="fridge-result-eyebrow">Recipe generated from your fridge</div>
+          <h2 class="fridge-result-title">Palak Paneer Masala</h2>
+          <p class="fridge-result-desc">A rich, fragrant tomato-based curry using your fresh spinach and paneer — ready in 35 minutes with just a handful of pantry spices.</p>
+          <div class="fridge-matched">
+            <span class="fridge-matched-label">Ingredients used:</span>
+            <span class="fridge-match-badge">✓ Spinach</span>
+            <span class="fridge-match-badge">✓ Paneer</span>
+            <span class="fridge-match-badge">✓ Cherry Tomatoes</span>
+            <span class="fridge-match-badge">✓ Garlic</span>
+          </div>
+          <div class="fridge-result-meta">
+            <span>⏱ 35 min</span>
+            <span>👥 4 servings</span>
+            <span>🌶 Spice 3/5</span>
+          </div>
+          <div class="fridge-result-actions">
+            <button class="btn btn-primary btn-sm" onclick="showPage('detail', document.querySelectorAll('.nav-links button')[2])">View Full Recipe →</button>
+            <button class="btn btn-ghost btn-sm">Try Different Recipe</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation-block" style="margin-top: 16px;">
+      <strong>FR-5.6–5.8 · US-23–24</strong> — Green ✓ badges show which fridge ingredients the recipe uses. "Try Different Recipe" sends the same request with the current recipe title excluded. Result is automatically saved to cookbook with source="fridge".
+    </div>
+
+  </div>
+</div>
+
+<div class="wf-note">
+  <span class="wf-badge">WIREFRAME</span>
+  Family Fork · v1.1 · 5 views: Home, Cookbook, Recipe Detail, Profile Setup, Fridge
+</div>
+
+<script>
+  /* ── page navigation ── */
+  function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  /* ── profile chips ── */
+  function toggleChip(el) { el.classList.toggle('selected'); }
+
+  /* ── profile spice slider ── */
+  function updateSpice(val) {
+    document.getElementById('spice-val').textContent = val;
+  }
+
+  /* ── recipe detail serving adjuster ── */
+  let servings = 4;
+  function adjustServings(delta) {
+    servings = Math.max(1, Math.min(10, servings + delta));
+    document.getElementById('serving-count').textContent = servings;
+  }
+
+  /* ── filter panel ── */
+
+  // Toggle collapsible group
+  function toggleGroup(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  // Track active filters per group
+  const activeFilters = { cuisine: [], diet: [], nutrition: [], spice: [], people: [], age: [], time: [] };
+
+  function filterChanged(el, group) {
+    const label = el.closest('.filter-option').querySelector('.filter-option-label').textContent.trim();
+
+    if (group === 'spice') {
+      // range slider — show count if not max
+      const val = parseInt(el.value);
+      activeFilters.spice = val < 5 ? [`Spice ≤ ${val}`] : [];
+    } else {
+      if (el.checked) {
+        if (!activeFilters[group].includes(label)) activeFilters[group].push(label);
+      } else {
+        activeFilters[group] = activeFilters[group].filter(v => v !== label);
+      }
+    }
+
+    updateGroupCounts();
+    updateActivePills();
+    updateResultsLabel();
+  }
+
+  function updateGroupCounts() {
+    Object.keys(activeFilters).forEach(g => {
+      const el = document.getElementById('cnt-' + g);
+      if (!el) return;
+      const count = activeFilters[g].length;
+      el.textContent = count;
+      el.classList.toggle('visible', count > 0);
+    });
+  }
+
+  function updateActivePills() {
+    const allFilters = Object.values(activeFilters).flat();
+    const strip = document.getElementById('active-strip');
+    const pillsEl = document.getElementById('active-pills');
+
+    if (allFilters.length === 0) {
+      strip.classList.add('hidden');
+      return;
+    }
+    strip.classList.remove('hidden');
+    pillsEl.innerHTML = allFilters.map(f =>
+      `<span class="active-pill" onclick="removePill('${f}')">${f} ✕</span>`
+    ).join('');
+  }
+
+  function removePill(label) {
+    // uncheck matching checkbox
+    document.querySelectorAll('.filter-panel input[type="checkbox"]').forEach(cb => {
+      const cbLabel = cb.closest('.filter-option')?.querySelector('.filter-option-label')?.textContent.trim();
+      if (cbLabel === label) cb.checked = false;
+    });
+    // remove from activeFilters
+    Object.keys(activeFilters).forEach(g => {
+      activeFilters[g] = activeFilters[g].filter(v => v !== label);
+    });
+    updateGroupCounts();
+    updateActivePills();
+    updateResultsLabel();
+  }
+
+  function clearAllFilters() {
+    document.querySelectorAll('.filter-panel input[type="checkbox"]').forEach(cb => cb.checked = false);
+    const spiceEl = document.querySelector('.panel-range');
+    if (spiceEl) { spiceEl.value = 5; document.getElementById('panel-spice-val').textContent = '5'; }
+    Object.keys(activeFilters).forEach(g => activeFilters[g] = []);
+    updateGroupCounts();
+    updateActivePills();
+    updateResultsLabel();
+  }
+
+  /* ── fridge page ── */
+  function wfAddIngredient(val) {
+    val = (val || '').trim();
+    if (!val) return;
+    const chips = document.getElementById('wf-chips');
+    const span = document.createElement('span');
+    span.className = 'fridge-chip';
+    span.innerHTML = `${val} <button class="fridge-chip-remove" onclick="this.parentElement.remove()">✕</button>`;
+    chips.appendChild(span);
+    document.getElementById('wf-ingredient-input').value = '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement === document.getElementById('wf-ingredient-input')) {
+      wfAddIngredient(document.getElementById('wf-ingredient-input').value);
+    }
+  });
+
+  function wfAddChip(btn, name) {
+    wfAddIngredient(name);
+  }
+
+  function wfSelectSingle(btn, groupId) {
+    document.querySelectorAll('#' + groupId + ' .fridge-option-chip').forEach(b => b.classList.remove('selected'));
+    btn.classList.toggle('selected');
+  }
+
+  function wfShowResult() {
+    document.getElementById('wf-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function updateResultsLabel() {
+    const allFilters = Object.values(activeFilters).flat();
+    const label = document.getElementById('results-label');
+    if (!label) return;
+    if (allFilters.length === 0) {
+      label.innerHTML = 'Showing <strong>28 recipes</strong>';
+    } else {
+      // Simulate filtered count for wireframe
+      const fakeCount = Math.max(3, 28 - allFilters.length * 4);
+      label.innerHTML = `Showing <strong>${fakeCount} recipes</strong> matching <em>${allFilters.length} filter${allFilters.length > 1 ? 's' : ''}</em>`;
+    }
+  }
+</script>
+
+</body>
+</html>

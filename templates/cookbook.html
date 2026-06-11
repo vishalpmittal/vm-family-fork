@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}Cookbook — Family Fork{% endblock %}
+
+{% block content %}
+
+<!-- ── TOP BAR ── -->
+<div class="cookbook-topbar">
+  <div class="cookbook-title-row">
+    <div>
+      <h1 class="cookbook-title">My Cookbook</h1>
+      <div class="cookbook-count">{{ total }} recipe{{ 's' if total != 1 }} · Last added
+        {% if recipes %} {{ recipes[0].generated_at.strftime('%b %d') }} {% else %} never {% endif %}
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary generate-recipe-btn">+ Generate Recipe</button>
+  </div>
+
+  <form id="filter-form" method="GET" action="{{ url_for('cookbook') }}">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input id="search-input" type="text" name="q" value="{{ q }}" placeholder="Search by recipe name, ingredient, tag…" />
+    </div>
+  </form>
+</div>
+
+<!-- ── ACTIVE FILTER PILLS ── -->
+<div class="active-strip {{ 'hidden' if not active_filters }}">
+  <span class="active-strip-label">Active filters:</span>
+  {% for f in active_filters %}
+    <span class="active-pill" data-remove="{{ 'cuisine' if f in ['indian','italian','mexican','mediterranean'] else ('spice_max' if 'Spice' in f else ('time_max' if 'min' in f else ('diet' if f in ['vegetarian','vegan','chicken','seafood','diabetic-friendly'] else 'nutrition'))) }}" data-val="{{ f }}">
+      {{ f }} ✕
+    </span>
+  {% endfor %}
+  <button class="clear-all-btn" id="clear-all">Clear all</button>
+</div>
+
+<!-- ── TWO-COLUMN LAYOUT ── -->
+<div class="cookbook-layout">
+
+  <!-- LEFT FILTER PANEL -->
+  <aside class="filter-panel">
+    <div class="filter-panel-header">
+      <span class="filter-panel-title">Filters</span>
+      <button class="filter-clear-all" id="clear-all-panel">Clear all</button>
+    </div>
+
+    <form id="filter-form-panel" method="GET" action="{{ url_for('cookbook') }}">
+      <input type="hidden" name="q" value="{{ q }}">
+
+      <!-- Cuisine -->
+      <div class="filter-group open" id="fg-cuisine">
+        <button type="button" class="filter-group-toggle">
+          <span class="filter-group-label">
+            🍽 Cuisine
+            <span class="filter-group-badge{{ ' visible' if cuisine_filter }}">{{ cuisine_filter|length }}</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          {% for c, label in [('indian','🍛 Indian'),('italian','🍝 Italian'),('mexican','🌮 Mexican'),('mediterranean','🫒 Mediterranean')] %}
+          <label class="filter-option">
+            <input type="checkbox" name="cuisine" value="{{ c }}" class="filter-form-check" {{ 'checked' if c in cuisine_filter }}>
+            <span class="filter-option-label">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Dietary -->
+      <div class="filter-group open" id="fg-diet">
+        <button type="button" class="filter-group-toggle">
+          <span class="filter-group-label">
+            🥦 Dietary
+            <span class="filter-group-badge{{ ' visible' if diet_filter }}">{{ diet_filter|length }}</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          {% for d, label in [('vegetarian','Vegetarian'),('vegan','Vegan'),('chicken','Chicken OK'),('seafood','Seafood OK'),('diabetic-friendly','Diabetic')] %}
+          <label class="filter-option">
+            <input type="checkbox" name="diet" value="{{ d }}" class="filter-form-check" {{ 'checked' if d in diet_filter }}>
+            <span class="filter-option-label">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Nutrition -->
+      <div class="filter-group open" id="fg-nutrition">
+        <button type="button" class="filter-group-toggle">
+          <span class="filter-group-label">
+            💊 Nutrition
+            <span class="filter-group-badge{{ ' visible' if nutrition_filter }}">{{ nutrition_filter|length }}</span>
+          </span>
+          <span class="filter-chevron">▼</span>
+        </button>
+        <div class="filter-group-body">
+          {% for n, label in [('protein-rich','Protein-rich'),('iron-rich','Iron-rich'),('vitamin-rich','Vitamin-rich'),('no-carb','No-carb'),('balanced','Balanced'),('sugar-free','Sugar-free')] %}
+          <label class="filter-option">
+            <input type="checkbox" name="nutrition" value="{{ n }}" class="filter-form-check" {{ 'checked' if n in nutrition_filter }}>
+            <span class="filter-option-label">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </form>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div>
+    {% if recipes %}
+      {% set cuisine_emoji = {'indian':'🍛','italian':'🍝','mexican':'🌮','mediterranean':'🫒'} %}
+      
+      {% if by_cuisine %}
+        <!-- BROWSE MODE: grouped by cuisine -->
+        {% for cuisine, items in by_cuisine.items() %}
+        <div style="margin-bottom: 3rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">{{ cuisine_emoji.get(cuisine,'🍽') }} {{ cuisine|title }}</h2>
+            <a href="{{ url_for('cookbook', cuisine=cuisine) }}" style="color: var(--primary-terracotta); font-weight: 600; text-decoration: none;">Show all {{ items|length }} →</a>
+          </div>
+          <div class="recipe-grid">
+            {% for recipe in items[:8] %}
+            <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="recipe-card recipe-card-link">
+              <div class="recipe-card-img" data-emoji="{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}">
+                {% if recipe.image_url %}
+                <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="card-photo">
+                {% else %}{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}{% endif %}
+              </div>
+              <div class="recipe-card-body">
+                <div class="recipe-card-title">{{ recipe.title }}</div>
+                <div class="recipe-card-meta">
+                  <div class="recipe-card-meta-item">⏱ {{ recipe.prep_time_min + recipe.cook_time_min }} min</div>
+                  <div class="recipe-card-meta-item">👥 {{ recipe.servings }}</div>
+                </div>
+                <div class="recipe-card-tags-small">
+                  {% if recipe.dietary_tags %}<span class="recipe-card-tag-small">{{ recipe.dietary_tags[0] }}</span>{% endif %}
+                  {% if recipe.nutrition_tags %}<span class="recipe-card-tag-small">{{ recipe.nutrition_tags[0] }}</span>{% endif %}
+                </div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <!-- FILTERED / SEARCH MODE: flat grid -->
+        <div class="recipe-grid">
+          {% for recipe in recipes %}
+          <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="recipe-card recipe-card-link">
+            <div class="recipe-card-img" data-emoji="{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}">
+              {% if recipe.image_url %}
+              <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}" class="card-photo">
+              {% else %}{{ cuisine_emoji.get(recipe.cuisine_tag,'🍽') }}{% endif %}
+            </div>
+            <div class="recipe-card-body">
+              <div class="recipe-card-title">{{ recipe.title }}</div>
+              <div class="recipe-card-meta">
+                <div class="recipe-card-meta-item">{{ recipe.cuisine_tag|title }}</div>
+                <div class="recipe-card-meta-item">⏱ {{ recipe.prep_time_min + recipe.cook_time_min }} min</div>
+              </div>
+              <div class="recipe-card-tags-small">
+                {% if recipe.dietary_tags %}<span class="recipe-card-tag-small">{{ recipe.dietary_tags[0] }}</span>{% endif %}
+                {% if recipe.nutrition_tags %}<span class="recipe-card-tag-small">{{ recipe.nutrition_tags[0] }}</span>{% endif %}
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div class="empty-state">
+        <h3>No recipes found</h3>
+        <p>Try adjusting your filters or generate a new recipe.</p>
+        <button type="button" class="btn btn-primary generate-recipe-btn" style="margin-top:16px;">⚡ Generate Recipe</button>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('clear-all-panel')?.addEventListener('click', () => {
+    document.getElementById('clear-all')?.click();
+  });
+
+  // Handle search form submission
+  document.getElementById('search-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      document.getElementById('filter-form').submit();
+    }
+  });
+</script>
+{% endblock %}
