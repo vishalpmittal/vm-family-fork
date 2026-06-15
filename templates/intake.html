@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+{% block title %}Daily Intake — Family Fork{% endblock %}
+
+{% block content %}
+<div class="intake-page">
+
+  <header class="intake-header">
+    <h1 class="intake-title">🎯 Daily Nutrition Intake</h1>
+    <p class="intake-sub">
+      Estimates daily calorie, macro, and micronutrient targets using the
+      <abbr title="Modern clinical default for resting energy expenditure">Mifflin–St&nbsp;Jeor</abbr>
+      equation and US/Canada Dietary Reference Intakes. Educational reference, not medical advice.
+    </p>
+  </header>
+
+  <!-- ── Input form ─────────────────────────────────────────────────────────── -->
+  <form class="intake-form" method="GET" action="{{ url_for('intake') }}">
+    <div class="intake-form-grid">
+      <label>
+        <span>Sex</span>
+        <select name="sex">
+          <option value="male"   {{ 'selected' if intake.inputs.sex == 'male' }}>Male</option>
+          <option value="female" {{ 'selected' if intake.inputs.sex == 'female' }}>Female</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Age</span>
+        <input type="number" name="age" min="2" max="100" value="{{ intake.inputs.age }}">
+      </label>
+
+      <div class="unit-field" data-field="height" data-unit="{{ intake.display.height_unit }}">
+        <div class="unit-field-header">
+          <span>Height</span>
+          <div class="unit-toggle" role="group" aria-label="Height unit">
+            <button type="button" data-unit="cm" class="{{ 'active' if intake.display.height_unit == 'cm' }}">cm</button>
+            <button type="button" data-unit="ft" class="{{ 'active' if intake.display.height_unit == 'ft' }}">ft / in</button>
+          </div>
+        </div>
+        <input type="hidden" name="height_unit" value="{{ intake.display.height_unit }}">
+
+        <div class="unit-inputs unit-inputs-cm">
+          <input type="number" name="height" min="80" max="230" step="0.1" value="{{ intake.inputs.height_cm }}" data-canonical>
+        </div>
+        <div class="unit-inputs unit-inputs-ft">
+          <input type="number" name="height_ft" min="2" max="8" placeholder="ft" value="{{ intake.display.height_ft }}">
+          <input type="number" name="height_in" min="0" max="11" placeholder="in" value="{{ intake.display.height_in }}">
+        </div>
+      </div>
+
+      <div class="unit-field" data-field="weight" data-unit="{{ intake.display.weight_unit }}">
+        <div class="unit-field-header">
+          <span>Weight</span>
+          <div class="unit-toggle" role="group" aria-label="Weight unit">
+            <button type="button" data-unit="kg" class="{{ 'active' if intake.display.weight_unit == 'kg' }}">kg</button>
+            <button type="button" data-unit="lb" class="{{ 'active' if intake.display.weight_unit == 'lb' }}">lb</button>
+          </div>
+        </div>
+        <input type="hidden" name="weight_unit" value="{{ intake.display.weight_unit }}">
+
+        <div class="unit-inputs unit-inputs-kg">
+          <input type="number" name="weight" min="15" max="250" step="0.1" value="{{ intake.inputs.weight_kg }}" data-canonical>
+        </div>
+        <div class="unit-inputs unit-inputs-lb">
+          <input type="number" name="weight_lb" min="33" max="550" step="0.1" value="{{ intake.display.weight_lb }}">
+        </div>
+      </div>
+
+      <label class="span-2">
+        <span>Activity level</span>
+        <select name="activity">
+          {% for key, (factor, blurb) in activity_options.items() %}
+          <option value="{{ key }}" {{ 'selected' if intake.inputs.activity == key }}>
+            {{ key.replace('_', ' ')|title }} — {{ blurb }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <button type="submit" class="btn btn-primary intake-submit">Update</button>
+    </div>
+
+    <div class="intake-presets">
+      <span class="intake-presets-label">Quick presets:</span>
+      {% for p in presets %}
+        <a href="{{ url_for('intake', sex=p.sex, age=p.age, height=p.height, weight=p.weight, activity=p.activity) }}">
+          {{ p.label }}
+        </a>
+      {% endfor %}
+    </div>
+  </form>
+
+  <!-- ── Energy summary cards ───────────────────────────────────────────────── -->
+  <section class="intake-energy">
+    <div class="intake-card">
+      <div class="intake-card-label">Resting (BMR)</div>
+      <div class="intake-card-value">{{ intake.energy.bmr }}<span> kcal</span></div>
+      <div class="intake-card-hint">What you burn at complete rest</div>
+    </div>
+    <div class="intake-card intake-card-primary">
+      <div class="intake-card-label">Daily target (TDEE)</div>
+      <div class="intake-card-value">{{ intake.energy.tdee }}<span> kcal</span></div>
+      <div class="intake-card-hint">BMR × {{ intake.inputs.activity_factor }} ({{ intake.inputs.activity.replace('_', ' ') }})</div>
+    </div>
+    <div class="intake-card">
+      <div class="intake-card-label">Fiber</div>
+      <div class="intake-card-value">{{ intake.fiber_g }}<span> g</span></div>
+      <div class="intake-card-hint">14 g per 1000 kcal</div>
+    </div>
+    <div class="intake-card">
+      <div class="intake-card-label">Water</div>
+      <div class="intake-card-value">{{ intake.water_l }}<span> L</span></div>
+      <div class="intake-card-hint">More in heat or heavy training</div>
+    </div>
+  </section>
+
+  <!-- ── Body composition: BMI + ideal weight ───────────────────────────────── -->
+  <section class="intake-section">
+    <h2>Body composition</h2>
+    <p class="intake-blurb">BMI is a coarse screen — it doesn't see muscle vs fat — but it's a useful starting check alongside an ideal-weight reference.</p>
+
+    <div class="bmi-grid">
+      <div class="bmi-card">
+        <div class="bmi-value-row">
+          <div>
+            <div class="intake-card-label">Your BMI</div>
+            <div class="bmi-value">{{ intake.body.bmi }}</div>
+          </div>
+          <span class="bmi-badge bmi-{{ intake.body.bmi_severity }}">{{ intake.body.bmi_label }}</span>
+        </div>
+
+        <div class="bmi-scale" aria-label="BMI scale">
+          <div class="bmi-scale-bar">
+            <span class="bmi-scale-seg bmi-seg-low"  style="width:14%;"  title="Underweight (<18.5)"></span>
+            <span class="bmi-scale-seg bmi-seg-ok"   style="width:26%;"  title="Healthy (18.5–24.9)"></span>
+            <span class="bmi-scale-seg bmi-seg-warn" style="width:20%;"  title="Overweight (25–29.9)"></span>
+            <span class="bmi-scale-seg bmi-seg-high" style="width:40%;"  title="Obese (30+)"></span>
+          </div>
+          <div class="bmi-marker" style="left: {{ intake.body.bmi_marker_pct }}%;">▼</div>
+          <div class="bmi-scale-labels">
+            <span>15</span><span>18.5</span><span>25</span><span>30</span><span>40+</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bmi-card">
+        <div class="intake-card-label">Healthy weight range</div>
+        <div class="bmi-range">{{ intake.body.ideal_range_display }}</div>
+        <div class="intake-card-hint">
+          BMI 18.5–24.9 at your height ({{ intake.body.height_display }})
+        </div>
+        {% if intake.body.delta_to_range == 0 %}
+          <div class="bmi-delta bmi-delta-ok">✓ You're in this range</div>
+        {% elif intake.inputs.weight_kg < intake.body.ideal_low %}
+          <div class="bmi-delta bmi-delta-warn">{{ intake.body.delta_display }} below the lower bound</div>
+        {% else %}
+          <div class="bmi-delta bmi-delta-warn">{{ intake.body.delta_display }} above the upper bound</div>
+        {% endif %}
+      </div>
+
+      <div class="bmi-card">
+        <div class="intake-card-label">Ideal weight (Devine)</div>
+        <div class="bmi-range">{{ intake.body.devine_display }}</div>
+        <div class="intake-card-hint">
+          Clinical reference point used for drug dosing — best treated as
+          a single number alongside the range, not a goal in itself.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Macro chart ────────────────────────────────────────────────────────── -->
+  <section class="intake-section">
+    <h2>Macronutrient split</h2>
+    <p class="intake-blurb">Share of daily calories from each macro. Protein is scaled by body weight and activity (target {{ intake.macros[0].grams }} g ≈ {{ (intake.macros[0].grams / intake.inputs.weight_kg)|round(1) }} g/kg).</p>
+
+    <div class="macro-bar" aria-label="Macro split bar">
+      {% for m in intake.macros %}
+      <div class="macro-bar-seg" style="width: {{ m.pct_of_calories }}%; background: {{ m.color }};" title="{{ m.name }} {{ m.pct_of_calories }}%">
+        {% if m.pct_of_calories >= 8 %}{{ m.name }} {{ m.pct_of_calories }}%{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <table class="macro-table">
+      <thead>
+        <tr>
+          <th>Macro</th>
+          <th class="num">Grams / day</th>
+          <th class="num">Calories</th>
+          <th class="num">% of total</th>
+          <th class="bar-col">Visual</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set max_g = intake.macros|map(attribute='grams')|max %}
+        {% for m in intake.macros %}
+        <tr>
+          <td><span class="macro-dot" style="background: {{ m.color }};"></span> {{ m.name }}</td>
+          <td class="num">{{ m.grams }} g</td>
+          <td class="num">{{ m.kcal }} kcal</td>
+          <td class="num">{{ m.pct_of_calories }}%</td>
+          <td class="bar-col">
+            <div class="macro-row-bar">
+              <div class="macro-row-bar-fill" style="width: {{ (m.grams / max_g * 100)|round(1) }}%; background: {{ m.color }};"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Summary & Recommendations ──────────────────────────────────────────── -->
+  <section class="intake-section">
+    <h2>Summary & recommendations</h2>
+    <div class="recs-card">
+      <div class="recs-headline">
+        A <strong>{{ intake.inputs.age }}-year-old {{ intake.inputs.sex }}</strong>
+        at <strong>{{ intake.body.height_display }}</strong> /
+        <strong>{{ intake.body.weight_display }}</strong>
+        ({{ intake.inputs.activity.replace('_', ' ') }}) → target
+        <strong>{{ intake.energy.tdee }} kcal/day</strong>,
+        <strong>{{ intake.macros[0].grams }} g protein</strong>,
+        <strong>{{ intake.fiber_g }} g fiber</strong>,
+        <strong>{{ intake.water_l }} L water</strong>.
+        BMI <strong>{{ intake.body.bmi }}</strong> — {{ intake.body.bmi_label|lower }}.
+      </div>
+      <ul class="recs-list">
+        {% for r in intake.recommendations %}
+        <li>{{ r }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Micronutrient table ────────────────────────────────────────────────── -->
+  <section class="intake-section">
+    <h2>Vitamins, minerals & limits</h2>
+    <p class="intake-blurb">RDAs for a {{ intake.inputs.age }}-year-old {{ intake.inputs.sex }}. The bottom two rows are <em>upper limits</em>, not targets to hit.</p>
+    <div class="nutrition-table-wrap">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th class="col-num">Daily target</th>
+            <th class="col-note">Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in intake.micros %}
+          <tr>
+            <td>{{ n.name }}</td>
+            <td class="col-num"><strong>{{ n.amount }}</strong> {{ n.unit }}</td>
+            <td class="col-note">{{ n.why }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="nutrition-footnote">
+    Calorie estimates carry roughly ±10% error. Adjust based on real-world weight trend over
+    2–4 weeks: drifting up → reduce ~200 kcal, drifting down (unintended) → add ~200 kcal.
+    Pregnancy, lactation, illness and competitive sport materially change these numbers — see
+    a registered dietitian.
+  </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Unit toggles for height (cm ↔ ft/in) and weight (kg ↔ lb).
+  // Switching unit live-converts the current value so the equivalent shows.
+  document.querySelectorAll('.unit-field').forEach(field => {
+    const fieldName = field.dataset.field;       // 'height' or 'weight'
+    const hidden    = field.querySelector('input[type=hidden]');
+    const buttons   = field.querySelectorAll('.unit-toggle button');
+    const cmInput   = field.querySelector('input[name=height]');
+    const ftInput   = field.querySelector('input[name=height_ft]');
+    const inInput   = field.querySelector('input[name=height_in]');
+    const kgInput   = field.querySelector('input[name=weight]');
+    const lbInput   = field.querySelector('input[name=weight_lb]');
+
+    function setUnit(unit) {
+      // Convert before swapping visible inputs so the value carries across.
+      if (fieldName === 'height') {
+        if (unit === 'ft' && cmInput?.value) {
+          const totalIn = parseFloat(cmInput.value) / 2.54;
+          const ft = Math.floor(totalIn / 12);
+          const inches = Math.round(totalIn - ft * 12);
+          if (ftInput) ftInput.value = ft;
+          if (inInput) inInput.value = inches;
+        } else if (unit === 'cm' && (ftInput?.value || inInput?.value)) {
+          const ft = parseFloat(ftInput?.value || 0);
+          const inches = parseFloat(inInput?.value || 0);
+          if (cmInput) cmInput.value = Math.round((ft * 30.48 + inches * 2.54) * 10) / 10;
+        }
+      } else if (fieldName === 'weight') {
+        if (unit === 'lb' && kgInput?.value) {
+          if (lbInput) lbInput.value = Math.round(parseFloat(kgInput.value) * 2.20462 * 10) / 10;
+        } else if (unit === 'kg' && lbInput?.value) {
+          if (kgInput) kgInput.value = Math.round(parseFloat(lbInput.value) / 2.20462 * 10) / 10;
+        }
+      }
+
+      field.dataset.unit = unit;
+      hidden.value = unit;
+      buttons.forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+    }
+
+    buttons.forEach(b => b.addEventListener('click', () => setUnit(b.dataset.unit)));
+  });
+
+  // Disable the inactive unit's inputs on submit so the URL stays clean.
+  document.querySelector('.intake-form')?.addEventListener('submit', () => {
+    document.querySelectorAll('.unit-field').forEach(field => {
+      const activeUnit = field.dataset.unit;
+      field.querySelectorAll('.unit-inputs').forEach(group => {
+        if (!group.classList.contains('unit-inputs-' + activeUnit)) {
+          group.querySelectorAll('input').forEach(i => i.disabled = true);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

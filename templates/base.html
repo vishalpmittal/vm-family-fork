@@ -14,6 +14,8 @@
   <div class="nav-links">
     <a href="{{ url_for('home') }}" {% if request.endpoint == 'home' %}class="active"{% endif %}>Home</a>
     <a href="{{ url_for('cookbook') }}" {% if request.endpoint == 'cookbook' %}class="active"{% endif %}>Cookbook</a>
+    <a href="{{ url_for('nutrition') }}" {% if request.endpoint == 'nutrition' %}class="active"{% endif %}>📊 Nutrition</a>
+    <a href="{{ url_for('intake') }}" {% if request.endpoint == 'intake' %}class="active"{% endif %}>🎯 Daily Intake</a>
     <a href="{{ url_for('fridge') }}" {% if request.endpoint == 'fridge' %}class="active"{% endif %}>🧊 Fridge</a>
     <a href="{{ url_for('profile') }}" {% if request.endpoint == 'profile' %}class="active"{% endif %}>My Profile</a>
   </div>

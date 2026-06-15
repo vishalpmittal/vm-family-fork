@@ -232,6 +232,82 @@ def fridge():
     return render_template("fridge.html", profile=profile)
 
 
+@app.route("/nutrition")
+def nutrition():
+    from nutrition_data import all_categories
+    profile = get_profile()
+    return render_template("nutrition.html", profile=profile, categories=all_categories())
+
+
+@app.route("/intake")
+def intake():
+    from daily_intake import compute_intake, PRESETS, ACTIVITY_FACTORS
+
+    def _num(name, default, lo, hi, cast=float):
+        try:
+            v = cast(request.args.get(name, default))
+        except (TypeError, ValueError):
+            v = default
+        return max(lo, min(hi, v))
+
+    sex = request.args.get("sex", "male")
+    if sex not in ("male", "female"):
+        sex = "male"
+    age = int(_num("age", 30, 2, 100, int))
+
+    # ── Height: accept cm OR ft+in ────────────────────────────────────────────
+    height_unit = request.args.get("height_unit", "cm")
+    if height_unit not in ("cm", "ft"):
+        height_unit = "cm"
+
+    default_cm = 175 if sex == "male" else 162
+    if height_unit == "ft" and ("height_ft" in request.args or "height_in" in request.args):
+        ft = _num("height_ft", 5, 2, 8, int)
+        inches = _num("height_in", 9, 0, 11, float)
+        height_cm = round(ft * 30.48 + inches * 2.54, 1)
+    else:
+        height_cm = _num("height", default_cm, 80, 230, float)
+    height_cm = max(80.0, min(230.0, height_cm))
+
+    # ── Weight: accept kg OR lb ───────────────────────────────────────────────
+    weight_unit = request.args.get("weight_unit", "kg")
+    if weight_unit not in ("kg", "lb"):
+        weight_unit = "kg"
+
+    default_kg = 75 if sex == "male" else 65
+    if weight_unit == "lb" and "weight_lb" in request.args:
+        lb = _num("weight_lb", default_kg * 2.20462, 33, 550, float)
+        weight_kg = round(lb / 2.20462, 1)
+    else:
+        weight_kg = _num("weight", default_kg, 15, 250, float)
+    weight_kg = max(15.0, min(250.0, weight_kg))
+
+    activity = request.args.get("activity", "moderate")
+
+    intake = compute_intake(
+        sex, age, height_cm, weight_kg, activity,
+        height_unit=height_unit, weight_unit=weight_unit,
+    )
+
+    # Pre-compute the imperial display values so the toggle UI has both.
+    total_inches = height_cm / 2.54
+    intake["display"] = {
+        "height_unit": height_unit,
+        "weight_unit": weight_unit,
+        "height_ft": int(total_inches // 12),
+        "height_in": round(total_inches - int(total_inches // 12) * 12),
+        "weight_lb": round(weight_kg * 2.20462, 1),
+    }
+
+    return render_template(
+        "intake.html",
+        profile=get_profile(),
+        intake=intake,
+        presets=PRESETS,
+        activity_options=ACTIVITY_FACTORS,
+    )
+
+
 # ── Background job store ──────────────────────────────────────────────────────
 
 _jobs = {}  # job_id -> {status, recipe, error}

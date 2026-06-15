@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Nutrition Facts — Family Fork{% endblock %}
+
+{% block content %}
+<div class="nutrition-page">
+
+  <header class="nutrition-header">
+    <h1 class="nutrition-title">📊 Nutritional Facts</h1>
+    <p class="nutrition-sub">
+      Per 100&nbsp;g of edible portion. Sourced from the household reference list and standard
+      tables (USDA FoodData Central, IFCT 2017 for Indian foods). Use protein quality
+      (<abbr title="Protein Digestibility-Corrected Amino Acid Score: 0–1, higher is better">PDCAAS</abbr>)
+      alongside grams — soy, dairy, eggs and quinoa score near 1.0.
+    </p>
+
+    <div class="nutrition-controls">
+      <input id="nutrition-search" type="search" placeholder="Filter foods (e.g. ragi, paneer, salmon)…" autocomplete="off" />
+      <nav class="nutrition-jump">
+        {% for cat in categories %}
+          <a href="#cat-{{ cat.key }}">{{ cat.emoji }} {{ cat.label }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+  </header>
+
+  {% for cat in categories %}
+  <section class="nutrition-section" id="cat-{{ cat.key }}" data-category="{{ cat.key }}">
+    <div class="nutrition-section-head">
+      <h2>{{ cat.emoji }} {{ cat.label }}</h2>
+      <p class="nutrition-blurb">{{ cat.blurb }}</p>
+    </div>
+
+    <div class="nutrition-table-wrap">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th class="col-name sortable" data-sort-type="text">Food <span class="sort-indicator"></span></th>
+            <th class="col-num sortable" data-sort-type="number" title="Grams of protein per 100 g">Protein (g) <span class="sort-indicator"></span></th>
+            <th class="col-num sortable" data-sort-type="number">Calories <span class="sort-indicator"></span></th>
+            <th class="col-num sortable" data-sort-type="number">Carbs (g) <span class="sort-indicator"></span></th>
+            <th class="col-num sortable" data-sort-type="number">Fat (g) <span class="sort-indicator"></span></th>
+            <th class="col-num sortable" data-sort-type="number">Fiber (g) <span class="sort-indicator"></span></th>
+            <th class="col-note sortable" data-sort-type="text">Notes <span class="sort-indicator"></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cat["items"] %}
+          <tr class="nutrition-row" data-name="{{ item.name|lower }}">
+            <td class="col-name">{{ item.name }}</td>
+            <td class="col-num">
+              <span class="protein-badge {% if item.protein >= 20 %}protein-high{% elif item.protein >= 10 %}protein-mid{% else %}protein-low{% endif %}">
+                {{ "%.1f"|format(item.protein) }}
+              </span>
+            </td>
+            <td class="col-num">{{ item.calories }}</td>
+            <td class="col-num">{{ "%.1f"|format(item.carbs) }}</td>
+            <td class="col-num">{{ "%.1f"|format(item.fat) }}</td>
+            <td class="col-num">{{ "%.1f"|format(item.fiber) }}</td>
+            <td class="col-note">{{ item.note }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endfor %}
+
+  <p class="nutrition-footnote">
+    Values are typical per 100&nbsp;g of the form indicated (raw/dry for grains and legumes,
+    cooked for meat/seafood unless noted). Actual values vary by variety, ripeness and
+    preparation.
+  </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Live text filter across every nutrition table.
+  const search = document.getElementById('nutrition-search');
+  if (search) {
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      document.querySelectorAll('.nutrition-section').forEach(section => {
+        let visibleRows = 0;
+        section.querySelectorAll('.nutrition-row').forEach(row => {
+          const match = !q || row.dataset.name.includes(q);
+          row.style.display = match ? '' : 'none';
+          if (match) visibleRows++;
+        });
+        section.style.display = visibleRows === 0 ? 'none' : '';
+      });
+    });
+  }
+
+  // Click-to-sort on each table header. Sort state is per-table.
+  document.querySelectorAll('.nutrition-table').forEach(table => {
+    const headers = table.querySelectorAll('thead th.sortable');
+    const tbody = table.querySelector('tbody');
+    let activeIdx = -1;
+    let direction = 1; // 1 = asc, -1 = desc
+
+    headers.forEach((th, idx) => {
+      th.addEventListener('click', () => {
+        if (activeIdx === idx) {
+          direction = -direction;
+        } else {
+          direction = 1;
+          activeIdx = idx;
+        }
+
+        const type = th.dataset.sortType || 'text';
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        const valueOf = (row) => {
+          const cell = row.children[idx];
+          if (!cell) return type === 'number' ? 0 : '';
+          const text = cell.textContent.trim();
+          if (type === 'number') {
+            const n = parseFloat(text);
+            return Number.isFinite(n) ? n : -Infinity;
+          }
+          return text.toLowerCase();
+        };
+
+        rows.sort((a, b) => {
+          const va = valueOf(a);
+          const vb = valueOf(b);
+          if (va < vb) return -1 * direction;
+          if (va > vb) return  1 * direction;
+          return 0;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+
+        headers.forEach((h, i) => {
+          h.classList.toggle('sorted', i === idx);
+          const ind = h.querySelector('.sort-indicator');
+          if (ind) ind.textContent = i === idx ? (direction === 1 ? '▲' : '▼') : '';
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}
