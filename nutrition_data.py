@@ -1,11 +1,10 @@
 """
 Reference nutrition data per 100g of edible portion.
 
-Values are drawn from food-sources.md (which lists per-serving figures) and
-standard public nutrition references (USDA FoodData Central, IFCT 2017 for
-Indian foods). Where a food is typically eaten cooked (e.g. dal, rice), the
-number reflects the raw/dry form unless noted in the "note" field, since
-cooked weights vary with water absorption.
+Values are drawn from standard public nutrition references — USDA FoodData
+Central and IFCT 2017 for Indian foods. Where a food is typically eaten
+cooked (e.g. dal, rice), the number reflects the raw/dry form unless noted
+in the "note" field, since cooked weights vary with water absorption.
 
 Schema for each item:
     name      display name (with Hindi/regional name in parens where useful)
